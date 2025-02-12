@@ -1,0 +1,9 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Admin Dashboard</h1>
+<p>Welcome, Administrator!</p>
+<h2>Hospital Statistics</h2>
+<p>Total Patients: {{ total_patients }}</p>
+<p>Total Doctors: {{ total_doctors }}</p>
+<p>Total Staff: {{ total_staff }}</p>
+<p>Available Resources: {{ available_resources }}</p>
+{% endblock %}

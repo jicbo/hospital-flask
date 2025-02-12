@@ -1,0 +1,28 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Search Doctors</h1>
+<form method="POST">
+	{{ form.hidden_tag() }}
+	<p>
+		{{ form.search_term.label }}<br />
+		{{ form.search_term(size=32) }}<br />
+		{% for error in form.search_term.errors %}
+		<span style="color: red">[{{ error }}]</span>
+		{% endfor %}
+	</p>
+	<p>
+		{{ form.search_by.label }}<br />
+		{{ form.search_by }}<br />
+		{% for error in form.search_by.errors %}
+		<span style="color: red">[{{ error }}]</span>
+		{% endfor %}
+	</p>
+	<p>{{ form.submit() }}</p>
+</form>
+
+<h2>Search Results</h2>
+<ul>
+	{% for doctor in doctors %}
+	<li>{{ doctor.name }} - {{ doctor.specialization }}</li>
+	{% endfor %}
+</ul>
+{% endblock %}

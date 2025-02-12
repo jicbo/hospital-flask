@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Manage Inventory</title>
+	</head>
+	<body>
+		<h1>Manage Inventory</h1>
+		<h2>Add New Item</h2>
+		<form method="POST" action="{{ url_for('admin_add_inventory') }}">
+			<label for="item_name">Item Name:</label><br />
+			<input type="text" id="item_name" name="item_name" /><br /><br />
+			<label for="quantity">Quantity:</label><br />
+			<input type="number" id="quantity" name="quantity" /><br /><br />
+			<input type="submit" value="Add Item" />
+		</form>
+		<h2>Existing Inventory</h2>
+		<ul>
+			{% for item in inventory %}
+			<li>
+				{{ item.item_name }} - Quantity: {{ item.quantity }}
+				<a href="{{ url_for('admin_edit_inventory', id=item.id) }}"
+					>Edit</a
+				>
+				<a href="{{ url_for('admin_delete_inventory', id=item.id) }}"
+					>Delete</a
+				>
+			</li>
+			{% endfor %}
+		</ul>
+	</body>
+</html>

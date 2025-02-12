@@ -1,0 +1,22 @@
+{% extends 'base.html' %} {% block title %}Profile{% endblock %} {% block
+content %}
+
+<h1>User Profile</h1>
+<p>Welcome, {{ current_user.name }}!</p>
+<p>Email: {{ current_user.email }}</p>
+<p>Role: {{ current_user.role }}</p>
+
+<h2>Appointment History</h2>
+<ul>
+	{% for appointment in current_user.appointments %}
+	<li>{{ appointment.date }} - Doctor: {{ appointment.doctor.name }}</li>
+	{% endfor %}
+</ul>
+
+<h2>Medical Records</h2>
+<ul>
+	{% for record in current_user.medical_records %}
+	<li>{{ record.date }} - Diagnosis: {{ record.diagnosis }}</li>
+	{% endfor %}
+</ul>
+{% endblock %}

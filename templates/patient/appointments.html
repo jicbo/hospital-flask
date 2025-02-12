@@ -1,0 +1,27 @@
+{% extends 'base.html' %} {% block title %}Book Appointment{% endblock %} {%
+block content %}
+<h1>Book Appointment</h1>
+<form method="POST" action="{{ url_for('book_appointment') }}">
+	{{ form.hidden_tag() }}
+	<div class="form-group">
+		{{ form.date.label }} {{ form.date(class="form-control") }}
+	</div>
+	<div class="form-group">
+		{{ form.doctor.label }} {{ form.doctor(class="form-control") }}
+	</div>
+	<div class="form-group">
+		{{ form.notes.label }} {{ form.notes(class="form-control") }}
+	</div>
+	{{ form.submit(class="btn btn-primary") }}
+</form>
+
+<h2>Upcoming Appointments</h2>
+<ul>
+	{% for appointment in current_user.appointments %}
+	<li>
+		{{ appointment.appointment_time }} - Doctor: {{ appointment.doctor.name
+		}}
+	</li>
+	{% endfor %}
+</ul>
+{% endblock %}

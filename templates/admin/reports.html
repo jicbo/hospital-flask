@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Generate Reports</title>
+	</head>
+	<body>
+		<h1>Generate Reports</h1>
+		<form method="POST" action="{{ url_for('admin_generate_report') }}">
+			<label for="report_type">Report Type:</label><br />
+			<select id="report_type" name="report_type">
+				<option value="patient_demographics">
+					Patient Demographics
+				</option>
+				<option value="appointment_statistics">
+					Appointment Statistics
+				</option>
+				<option value="resource_utilization">
+					Resource Utilization
+				</option></select
+			><br /><br />
+			<input type="submit" value="Generate Report" />
+		</form>
+		{% if report_data %}
+		<h2>Report Data</h2>
+		<pre>{{ report_data }}</pre>
+		{% endif %}
+	</body>
+</html>

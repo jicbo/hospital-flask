@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Doctor Dashboard</title>
+	</head>
+	<body>
+		{% extends 'base.html' %} {% block content %}
+		<h1>Doctor Dashboard</h1>
+		<p>Welcome, Dr. {{ current_user.name }}!</p>
+
+		<h2>Your Appointments</h2>
+		{% if appointments %}
+		<ul>
+			{% for appointment in appointments %}
+			<li>
+				Patient ID: {{ appointment.patient_id }}, Time: {{
+				appointment.appointment_time }},
+				<a
+					href="{{ url_for('add_report', appointment_id=appointment.id) }}"
+					>Add Report</a
+				>
+			</li>
+			{% endfor %}
+		</ul>
+		{% else %}
+		<p>No appointments scheduled.</p>
+		{% endif %} {% endblock %}
+	</body>
+</html>

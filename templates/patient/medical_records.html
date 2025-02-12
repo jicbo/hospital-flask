@@ -1,0 +1,13 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Medical Records</h1>
+<ul>
+	{% for record in medical_records %}
+	<li>
+		Date: {{ record.date }}<br />
+		Diagnosis: {{ record.diagnosis }}<br />
+		Treatment: {{ record.treatment }}<br />
+		Doctor: {{ record.doctor_id }}
+	</li>
+	{% endfor %}
+</ul>
+{% endblock %}
