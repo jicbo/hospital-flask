@@ -1,0 +1,45 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Search Patients</h1>
+<form method="POST">
+	{{ form.hidden_tag() }}
+	<div class="form-group">
+		{{ form.search_term.label }} {{ form.search_term(class="form-control")
+		}}
+	</div>
+	<div class="form-group">
+		{{ form.search_by.label }} {{ form.search_by(class="form-control") }}
+	</div>
+	{{ form.submit(class="btn btn-primary") }}
+</form>
+
+<h2>Search Results</h2>
+<ul>
+	{% for patient in patients %}
+	<li>
+		{{ patient.name }} (ID: {{ patient.id }})
+		<a
+			href="{{ url_for('issue_prescription', patient_id=patient.id) }}"
+			class="btn btn-sm btn-primary"
+			>Add Prescription</a
+		>
+		<a
+			href="{{ url_for('add_medical_record', appointment_id=0) }}"
+			class="btn btn-sm btn-secondary"
+			>Add Medical Record</a
+		>
+		<a
+			href="{{ url_for('schedule_appointment', patient_id=patient.id) }}"
+			class="btn btn-sm btn-success"
+			>Create Appointment</a
+		>
+		<a
+			href="{{ url_for('patient_profile', patient_id=patient.id) }}"
+			class="btn btn-sm btn-info"
+			>View Profile</a
+		>
+	</li>
+	{% else %}
+	<li>No patients found.</li>
+	{% endfor %}
+</ul>
+{% endblock %}

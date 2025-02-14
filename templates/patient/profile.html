@@ -6,17 +6,54 @@ content %}
 <p>Email: {{ current_user.email }}</p>
 <p>Role: {{ current_user.role }}</p>
 
+<h2>Upcoming Appointments</h2>
+<ul>
+	{% for appointment in appointments if appointment.appointment_date >
+	now.date() or (appointment.appointment_date == now.date() and
+	appointment.appointment_time >= now.time()) %}
+	<li>
+		{{ appointment.appointment_date.strftime('%Y-%m-%d') }} {{
+		appointment.appointment_time.strftime('%H:%M') }} - Doctor: {{
+		appointment.doctor.name }} ({{ appointment.doctor.specialization }})
+	</li>
+	{% else %}
+	<li>No upcoming appointments.</li>
+	{% endfor %}
+</ul>
+
 <h2>Appointment History</h2>
 <ul>
-	{% for appointment in current_user.appointments %}
-	<li>{{ appointment.date }} - Doctor: {{ appointment.doctor.name }}</li>
+	{% for appointment in appointments if appointment.appointment_date <
+	now.date() or (appointment.appointment_date == now.date() and
+	appointment.appointment_time < now.time()) %}
+	<li>
+		{{ appointment.appointment_date.strftime('%Y-%m-%d') }} {{
+		appointment.appointment_time.strftime('%H:%M') }} - Doctor: {{
+		appointment.doctor.name }} ({{ appointment.doctor.specialization }})
+	</li>
+	{% else %}
+	<li>No past appointments.</li>
 	{% endfor %}
 </ul>
 
 <h2>Medical Records</h2>
 <ul>
-	{% for record in current_user.medical_records %}
-	<li>{{ record.date }} - Diagnosis: {{ record.diagnosis }}</li>
+	{% for record in medical_records %}
+	<li>{{ record.id }} - {{ record.report }}</li>
+	{% else %}
+	<li>No medical records available.</li>
+	{% endfor %}
+</ul>
+
+<h2>Prescriptions</h2>
+<ul>
+	{% for prescription in current_user.prescriptions %}
+	<li>
+		{{ prescription.date }} - {{ prescription.medication }}: {{
+		prescription.dosage }} ({{ prescription.instructions }})
+	</li>
+	{% else %}
+	<li>No prescriptions available.</li>
 	{% endfor %}
 </ul>
 {% endblock %}

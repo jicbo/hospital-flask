@@ -4,8 +4,8 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
-from models import User, Appointment, MedicalRecord, db  # Import the models and db
-from forms import LoginForm, RegistrationForm, AddDoctorForm, AddStaffForm, ResourceForm, PricingForm, InventoryForm, AppointmentForm
+from models import User, Appointment, MedicalRecord, Prescription, db  # Import the models and db
+from forms import LoginForm, RegistrationForm, AddDoctorForm, AddStaffForm, ResourceForm, PricingForm, InventoryForm, AppointmentForm, MedicalRecordForm, DoctorSearchForm, PrescriptionForm, DoctorAppointmentForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email
 from flask_wtf import FlaskForm
@@ -42,7 +42,9 @@ def register():
     if form.validate_on_submit():
         email = form.email.data
         password = form.password.data
-        name = form.name.data
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        name = f"{first_name} {last_name}"  # Combine first and last name
 
         if User.query.filter_by(email=email).first():
             flash('Email already exists')
@@ -86,36 +88,32 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('patient/profile.html') # Example
+    now = datetime.now()
+    appointments = Appointment.query.filter_by(patient_id=current_user.id).order_by(Appointment.appointment_date, Appointment.appointment_time).all()
+    medical_records = MedicalRecord.query.filter_by(patient_id=current_user.id).all()
+    return render_template('patient/profile.html', appointments=appointments, medical_records=medical_records, now=now)
 
 @app.route('/book_appointment', methods=['GET', 'POST'])
 @login_required
 def book_appointment():
-    print(f"Current user role: {current_user.role}")  # Check current user's role
     if current_user.role != 'patient':
         return "You are not authorized to access this page."
-
     form = AppointmentForm()
-    doctors = User.query.filter_by(role='doctor').all()
-    form.doctor.choices = [(doctor.id, doctor.name) for doctor in doctors]
-
+    form.doctor.choices = [(doctor.id, f"{doctor.name} ({doctor.specialization})") for doctor in User.query.filter_by(role='doctor').all()]
     if form.validate_on_submit():
-        appointment_time = form.date.data
-        doctor_id = form.doctor.data
-        notes = form.notes.data
-
-        new_appointment = Appointment(
-            patient_id=current_user.id,
-            doctor_id=doctor_id,
+        # Construct the appointment time from hours and minutes
+        appointment_time = datetime.time(hour=form.hours.data, minute=form.minutes.data)
+        appointment = Appointment(
+            appointment_date=form.date.data.date(),
             appointment_time=appointment_time,
-            notes=notes  # Save notes to the appointment
+            patient_id=current_user.id,
+            doctor_id=form.doctor.data
         )
-        db.session.add(new_appointment)
+        db.session.add(appointment)
         db.session.commit()
-        flash('Appointment booked successfully!')
+        flash('Your appointment has been booked!', 'success')
         return redirect(url_for('profile'))
-
-    return render_template('patient/appointments.html', form=form, doctors=doctors)
+    return render_template('patient/appointments.html', form=form)
 
 # Doctor routes
 @app.route('/doctor/dashboard')
@@ -145,6 +143,101 @@ def add_report(appointment_id):
         else:
             flash('Please enter a medical report.')
     return render_template('doctor/medical_report.html', appointment=appointment)
+
+@app.route('/doctor/add_medical_record/<int:appointment_id>', methods=['GET', 'POST'])
+@login_required
+def add_medical_record(appointment_id):
+    if current_user.role != 'doctor':
+        return "You are not authorized to access this page."
+    appointment = Appointment.query.get_or_404(appointment_id)
+    form = MedicalRecordForm()
+    if form.validate_on_submit():
+        medical_record = MedicalRecord(
+            patient_id=appointment.patient_id,
+            report=form.report.data
+        )
+        db.session.add(medical_record)
+        db.session.commit()
+        flash('Medical record added successfully!')
+        return redirect(url_for('doctor_dashboard'))
+    return render_template('doctor/add_medical_record.html', form=form, appointment=appointment)
+
+@app.route('/doctor/search_patients', methods=['GET', 'POST'])
+@login_required
+def search_patients():
+    if current_user.role != 'doctor':
+        return "You are not authorized to access this page."
+    form = DoctorSearchForm()
+    patients = User.query.filter_by(role='patient').all()  # Default to all patients
+    if form.validate_on_submit():
+        search_term = form.search_term.data
+        search_by = form.search_by.data
+        if search_by == 'name':
+            patients = User.query.filter(User.name.ilike(f'%{search_term}%'), User.role == 'patient').all()
+        elif search_by == 'id':
+            patients = User.query.filter(User.id == search_term, User.role == 'patient').all()
+        elif search_by == 'diagnosis':
+            patients = User.query.join(MedicalRecord).filter(MedicalRecord.report.ilike(f'%{search_term}%'), User.role == 'patient').all()
+    return render_template('doctor/search_patients.html', form=form, patients=patients)
+
+@app.route('/doctor/issue_prescription', methods=['GET', 'POST'])
+@login_required
+def issue_prescription():
+    if current_user.role != 'doctor':
+        return "You are not authorized to access this page."
+    form = PrescriptionForm()
+    form.patient.choices = [(patient.id, patient.name) for patient in User.query.filter_by(role='patient').all()]
+    patient_id = request.args.get('patient_id', type=int)
+    if patient_id:
+        form.patient.data = patient_id  # Pre-select the patient
+    if form.validate_on_submit():
+        prescription = Prescription(
+            doctor_id=current_user.id,
+            patient_id=form.patient.data,
+            medication=form.medication.data,
+            dosage=form.dosage.data,
+            instructions=form.instructions.data
+        )
+        db.session.add(prescription)
+        db.session.commit()
+        flash('Prescription issued successfully!', 'success')
+        return redirect(url_for('doctor_dashboard'))
+    return render_template('doctor/issue_prescription.html', form=form)
+
+@app.route('/doctor/patient_profile/<int:patient_id>')
+@login_required
+def patient_profile(patient_id):
+    if current_user.role != 'doctor':
+        return "You are not authorized to access this page."
+    patient = User.query.get_or_404(patient_id)
+    appointments = Appointment.query.filter_by(patient_id=patient.id).order_by(Appointment.appointment_date, Appointment.appointment_time).all()
+    medical_records = MedicalRecord.query.filter_by(patient_id=patient.id).all()
+    prescriptions = Prescription.query.filter_by(patient_id=patient.id).all()
+    return render_template('doctor/patient_profile.html', patient=patient, appointments=appointments, medical_records=medical_records, prescriptions=prescriptions)
+
+@app.route('/doctor/schedule_appointment', methods=['GET', 'POST'])
+@login_required
+def schedule_appointment():
+    if current_user.role != 'doctor':
+        return "You are not authorized to access this page."
+    form = DoctorAppointmentForm()
+    form.patient.choices = [(patient.id, f"{patient.name}") for patient in User.query.filter_by(role='patient').all()]
+    patient_id = request.args.get('patient_id', type=int)
+    if patient_id:
+        form.patient.data = patient_id  # Pre-select the patient
+    if form.validate_on_submit():
+        appointment_time = datetime.time(hour=form.hours.data, minute=form.minutes.data)
+        appointment = Appointment(
+            appointment_date=form.date.data.date(),
+            appointment_time=appointment_time,
+            patient_id=form.patient.data,
+            doctor_id=current_user.id
+        )
+        db.session.add(appointment)
+        db.session.commit()
+        flash('Appointment scheduled successfully!', 'success')
+        return redirect(url_for('doctor_dashboard'))
+    return render_template('doctor/schedule_appointment.html', form=form)
 
 # Admin Routes
 @app.route('/admin/dashboard')
@@ -366,18 +459,71 @@ def admin_delete_staff(id):
     flash('Staff deleted successfully!')
     return redirect(url_for('add_staff'))  # Redirect to add_staff
 
+def create_test_users():
+    # Create test patient
+    if not User.query.filter_by(email='danijela@gmail.com').first():
+        patient = User(
+            email='danijela@gmail.com',
+            name='Danijela',
+            role='patient'
+        )
+        patient.set_password('X#Kfv8$}Vj$#]]:')
+        db.session.add(patient)
+
+    # Create test doctor
+    if not User.query.filter_by(email='milica@gmail.com').first():
+        doctor = User(
+            email='milica@gmail.com',
+            name='Milica',
+            role='doctor',
+            specialization='General Practitioner'
+        )
+        doctor.set_password("be35v+'h=KjnSn")
+        db.session.add(doctor)
+
+    # Create admin user
+    if not User.query.filter_by(email='admin@example.com').first():
+        admin = User(
+            email='admin@example.com',
+            name='Admin',
+            role='admin'
+        )
+        admin.set_password('passwordpassword')
+        db.session.add(admin)
+
+    # Create additional test patients
+    if not User.query.filter_by(email='jovan@gmail.com').first():
+        patient = User(
+            email='jovan@gmail.com',
+            name='Jovan',
+            role='patient'
+        )
+        patient.set_password('password123')
+        db.session.add(patient)
+
+    if not User.query.filter_by(email='ana@gmail.com').first():
+        patient = User(
+            email='ana@gmail.com',
+            name='Ana',
+            role='patient'
+        )
+        patient.set_password('password123')
+        db.session.add(patient)
+
+    if not User.query.filter_by(email='marko@gmail.com').first():
+        patient = User(
+            email='marko@gmail.com',
+            name='Marko',
+            role='patient'
+        )
+        patient.set_password('password123')
+        db.session.add(patient)
+
+    db.session.commit()
+
+
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Create tables if they don't exist
-
-        # Create default admin user
-        admin_email = "admin@example.com"
-        if not User.query.filter_by(email=admin_email).first():
-            admin_password = "password"  # Replace with a strong password
-            hashed_password = generate_password_hash(admin_password)
-            admin = User(email=admin_email, password_hash=hashed_password, role='admin', name='Admin')
-            db.session.add(admin)
-            db.session.commit()
-            print("Default admin user created.")
-
+        db.create_all()
+        create_test_users()
         app.run(debug=True)

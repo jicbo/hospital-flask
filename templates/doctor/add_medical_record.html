@@ -1,0 +1,11 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Add Medical Record</h1>
+<p>Appointment for Patient ID: {{ appointment.patient_id }}</p>
+<form method="POST">
+	{{ form.hidden_tag() }}
+	<div class="form-group">
+		{{ form.report.label }} {{ form.report(class="form-control") }}
+	</div>
+	{{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

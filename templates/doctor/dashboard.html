@@ -26,6 +26,11 @@
 		</ul>
 		{% else %}
 		<p>No appointments scheduled.</p>
-		{% endif %} {% endblock %}
+		{% endif %}
+
+		<a href="{{ url_for('issue_prescription') }}" class="btn btn-primary"
+			>Issue Prescription</a
+		>
+		{% endblock %}
 	</body>
 </html>

@@ -36,17 +36,8 @@
 						>
 					</li>
 
-					{% if current_user.is_authenticated %}
-					<li class="nav-item">
-						<a class="nav-link" href="{{ url_for('logout') }}"
-							>Logout</a
-						>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="{{ url_for('profile') }}"
-							>Profile</a
-						>
-					</li>
+					{% if current_user.is_authenticated %} {% if
+					current_user.role == 'patient' %}
 					<li class="nav-item">
 						<a
 							class="nav-link"
@@ -54,7 +45,34 @@
 							>Book Appointment</a
 						>
 					</li>
-					{% if current_user.role == 'admin' %}
+					<li class="nav-item">
+						<a class="nav-link" href="{{ url_for('profile') }}"
+							>Profile</a
+						>
+					</li>
+					{% elif current_user.role == 'doctor' %}
+					<li class="nav-item">
+						<a
+							class="nav-link"
+							href="{{ url_for('doctor_dashboard') }}"
+							>Doctor Dashboard</a
+						>
+					</li>
+					<li class="nav-item">
+						<a
+							class="nav-link"
+							href="{{ url_for('schedule_appointment') }}"
+							>Schedule Appointment</a
+						>
+					</li>
+					<li class="nav-item">
+						<a
+							class="nav-link"
+							href="{{ url_for('search_patients') }}"
+							>Search Patients</a
+						>
+					</li>
+					{% elif current_user.role == 'admin' %}
 					<li class="nav-item">
 						<a
 							class="nav-link"
@@ -93,10 +111,13 @@
 							>Manage Inventory</a
 						>
 					</li>
+					{% endif %}
 					<li class="nav-item">
-						<a class="nav-link" href="#">Reports</a>
+						<a class="nav-link" href="{{ url_for('logout') }}"
+							>Logout</a
+						>
 					</li>
-					{% endif %} {% else %}
+					{% else %}
 					<li class="nav-item">
 						<a class="nav-link" href="{{ url_for('login') }}"
 							>Login</a

@@ -4,7 +4,29 @@ block content %}
 <form method="POST" action="{{ url_for('book_appointment') }}">
 	{{ form.hidden_tag() }}
 	<div class="form-group">
-		{{ form.date.label }} {{ form.date(class="form-control") }}
+		{{ form.date.label }}
+		<input
+			type="date"
+			name="date"
+			class="form-control"
+			value="{{ form.date.data|default('') }}"
+		/>
+	</div>
+	<div class="form-group">
+		{{ form.hours.label }}
+		<select name="hours" class="form-control">
+			{% for hour in range(8, 21) %}
+			<option value="{{ hour }}" {% if form.hours.data == hour %}selected{% endif %}>{{ hour }}</option>
+			{% endfor %}
+		</select>
+	</div>
+	<div class="form-group">
+		{{ form.minutes.label }}
+		<select name="minutes" class="form-control">
+			{% for minute in range(0, 60, 15) %}
+			<option value="{{ minute }}" {% if form.minutes.data == minute %}selected{% endif %}>{{ minute }}</option>
+			{% endfor %}
+		</select>
 	</div>
 	<div class="form-group">
 		{{ form.doctor.label }} {{ form.doctor(class="form-control") }}

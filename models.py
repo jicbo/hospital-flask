@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -28,7 +29,8 @@ class User(UserMixin, db.Model):
 class Appointment(db.Model):
     __tablename__ = 'appointment'
     id = db.Column(db.Integer, primary_key=True)
-    appointment_time = db.Column(db.DateTime, nullable=False)
+    appointment_date = db.Column(db.Date, nullable=False)
+    appointment_time = db.Column(db.Time, nullable=False)
     patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     medical_record_id = db.Column(db.Integer, db.ForeignKey('medical_record.id'))
@@ -53,10 +55,14 @@ class MedicalReport(db.Model):
     report = db.Column(db.Text)
 
 class Prescription(db.Model):
+    __tablename__ = 'prescription'
     id = db.Column(db.Integer, primary_key=True)
     doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    date = db.Column(db.DateTime, nullable=False)
-    medication = db.Column(db.String(100))
-    dosage = db.Column(db.String(100))
-    instructions = db.Column(db.Text)
+    date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    medication = db.Column(db.String(100), nullable=False)
+    dosage = db.Column(db.String(100), nullable=False)
+    instructions = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+        return f'<Prescription {self.id}>'
