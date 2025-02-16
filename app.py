@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, time
 import os
 from models import User, Appointment, MedicalRecord, Prescription, db  # Import the models and db
 from forms import LoginForm, RegistrationForm, AddDoctorForm, AddStaffForm, ResourceForm, PricingForm, InventoryForm, AppointmentForm, MedicalRecordForm, DoctorSearchForm, PrescriptionForm, DoctorAppointmentForm
@@ -102,9 +102,9 @@ def book_appointment():
     form.doctor.choices = [(doctor.id, f"{doctor.name} ({doctor.specialization})") for doctor in User.query.filter_by(role='doctor').all()]
     if form.validate_on_submit():
         # Construct the appointment time from hours and minutes
-        appointment_time = datetime.time(hour=form.hours.data, minute=form.minutes.data)
+        appointment_time = time(hour=form.hours.data, minute=form.minutes.data)
         appointment = Appointment(
-            appointment_date=form.date.data.date(),
+            appointment_date=form.date.data,
             appointment_time=appointment_time,
             patient_id=current_user.id,
             doctor_id=form.doctor.data
@@ -226,9 +226,9 @@ def schedule_appointment():
     if patient_id:
         form.patient.data = patient_id  # Pre-select the patient
     if form.validate_on_submit():
-        appointment_time = datetime.time(hour=form.hours.data, minute=form.minutes.data)
+        appointment_time = time(hour=form.hours.data, minute=form.minutes.data)
         appointment = Appointment(
-            appointment_date=form.date.data.date(),
+            appointment_date=form.date.data,
             appointment_time=appointment_time,
             patient_id=form.patient.data,
             doctor_id=current_user.id

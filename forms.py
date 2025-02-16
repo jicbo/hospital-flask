@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateTimeField, TextAreaField, SelectField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateTimeField, TextAreaField, SelectField, IntegerField, DateField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional, Length, NumberRange
 from models import User
 
@@ -37,7 +37,7 @@ class DoctorRegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
 class AppointmentForm(FlaskForm):
-    date = DateTimeField('Appointment Date', format='%Y-%m-%d', validators=[DataRequired()])
+    date = DateField('Appointment Date', format='%Y-%m-%d', validators=[DataRequired()])
     hours = IntegerField('Hours', validators=[DataRequired(), NumberRange(min=8, max=20)])
     minutes = IntegerField('Minutes', validators=[DataRequired(), NumberRange(min=0, max=59)])
     notes = TextAreaField('Notes')
@@ -94,7 +94,7 @@ class InventoryForm(FlaskForm):
     submit = SubmitField('Update Inventory')
 
 class DoctorAppointmentForm(FlaskForm):
-    date = DateTimeField('Appointment Date', format='%Y-%m-%d', validators=[DataRequired()])
+    date = DateField('Appointment Date', format='%Y-%m-%d', validators=[DataRequired()])
     hours = IntegerField('Hours', validators=[DataRequired(), NumberRange(min=8, max=20)])
     minutes = IntegerField('Minutes', validators=[DataRequired(), NumberRange(min=0, max=59)])
     patient = SelectField('Patient', coerce=int, validators=[DataRequired()])
