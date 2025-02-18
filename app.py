@@ -107,7 +107,8 @@ def book_appointment():
             appointment_date=form.date.data,
             appointment_time=appointment_time,
             patient_id=current_user.id,
-            doctor_id=form.doctor.data
+            doctor_id=form.doctor.data,
+            notes=form.notes.data
         )
         db.session.add(appointment)
         db.session.commit()
@@ -260,7 +261,8 @@ def schedule_appointment():
             appointment_date=appointment_date,
             appointment_time=appointment_time,
             patient_id=form.patient.data,
-            doctor_id=current_user.id
+            doctor_id=current_user.id,
+            notes=form.notes.data  # Ensure notes are saved
         )
         db.session.add(appointment)
         db.session.commit()
