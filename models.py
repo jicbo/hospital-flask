@@ -34,6 +34,8 @@ class Appointment(db.Model):
     patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     medical_record_id = db.Column(db.Integer, db.ForeignKey('medical_record.id'))
+    patient = db.relationship('User', foreign_keys=[patient_id], backref='patient_appointments')
+    notes = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
         return f'<Appointment {self.id}>'

@@ -146,8 +146,11 @@ def book_doctor_appointment(doctor_id):
 def doctor_dashboard():
     if current_user.role != 'doctor':
         return "You are not authorized to access this page."
-    appointments = Appointment.query.filter_by(doctor_id=current_user.id).all() # Get all appointments for the current doctor
-    return render_template('doctor/dashboard.html', appointments=appointments)
+    now = datetime.now()
+    appointments = Appointment.query.filter_by(doctor_id=current_user.id).order_by(Appointment.appointment_date, Appointment.appointment_time).all()
+    upcoming_appointments = [appointment for appointment in appointments if datetime.combine(appointment.appointment_date, appointment.appointment_time) >= now]
+    past_appointments = [appointment for appointment in appointments if datetime.combine(appointment.appointment_date, appointment.appointment_time) < now]
+    return render_template('doctor/dashboard.html', upcoming_appointments=upcoming_appointments, past_appointments=past_appointments)
 
 @app.route('/doctor/add_report/<int:appointment_id>', methods=['GET', 'POST'])
 @login_required

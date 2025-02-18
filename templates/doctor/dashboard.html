@@ -10,22 +10,72 @@
 		<h1>Doctor Dashboard</h1>
 		<p>Welcome, Dr. {{ current_user.name }}!</p>
 
-		<h2>Your Appointments</h2>
-		{% if appointments %}
-		<ul>
-			{% for appointment in appointments %}
-			<li>
-				Patient ID: {{ appointment.patient_id }}, Time: {{
-				appointment.appointment_time }},
-				<a
-					href="{{ url_for('add_report', appointment_id=appointment.id) }}"
-					>Add Report</a
-				>
-			</li>
-			{% endfor %}
-		</ul>
+		<h2>Upcoming Appointments</h2>
+		{% if upcoming_appointments %}
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Patient ID</th>
+					<th>Patient Name</th>
+					<th>Date</th>
+					<th>Time</th>
+					<th>Notes</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for appointment in upcoming_appointments %}
+				<tr>
+					<td>{{ appointment.patient_id }}</td>
+					<td>{{ appointment.patient.name }}</td>
+					<td>{{ appointment.appointment_date }}</td>
+					<td>
+						{{ appointment.appointment_time.strftime('%H:%M') }}
+					</td>
+					<td>{{ appointment.notes }}</td>
+					<td>
+						<a
+							href="{{ url_for('add_report', appointment_id=appointment.id) }}"
+							class="btn btn-primary btn-sm"
+							>Add Report</a
+						>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
 		{% else %}
-		<p>No appointments scheduled.</p>
+		<p>No upcoming appointments scheduled.</p>
+		{% endif %}
+
+		<h2>Past Appointments</h2>
+		{% if past_appointments %}
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Patient ID</th>
+					<th>Patient Name</th>
+					<th>Date</th>
+					<th>Time</th>
+					<th>Notes</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for appointment in past_appointments %}
+				<tr>
+					<td>{{ appointment.patient_id }}</td>
+					<td>{{ appointment.patient.name }}</td>
+					<td>{{ appointment.appointment_date }}</td>
+					<td>
+						{{ appointment.appointment_time.strftime('%H:%M') }}
+					</td>
+					<td>{{ appointment.notes }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		{% else %}
+		<p>No past appointments.</p>
 		{% endif %}
 
 		<a href="{{ url_for('issue_prescription') }}" class="btn btn-primary"
