@@ -50,6 +50,13 @@
 							>Profile</a
 						>
 					</li>
+					<li class="nav-item">
+						<a
+							class="nav-link"
+							href="{{ url_for('search_doctors') }}"
+							>Search Doctors</a
+						>
+					</li>
 					{% elif current_user.role == 'doctor' %}
 					<li class="nav-item">
 						<a

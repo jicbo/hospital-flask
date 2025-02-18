@@ -61,7 +61,7 @@ class PrescriptionForm(FlaskForm):
 
 class DoctorSearchForm(FlaskForm):
     search_term = StringField('Search', validators=[Optional()])
-    search_by = SelectField('Search By', choices=[('name', 'Name'), ('id', 'ID'), ('diagnosis', 'Diagnosis')], validators=[DataRequired()])
+    search_by = SelectField('Search By', choices=[('name', 'Name'), ('specialization', 'Specialization')], validators=[DataRequired()])
     submit = SubmitField('Search')
 
 class AddDoctorForm(FlaskForm):

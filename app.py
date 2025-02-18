@@ -115,6 +115,28 @@ def book_appointment():
         return redirect(url_for('profile'))
     return render_template('patient/appointments.html', form=form)
 
+@app.route('/book_appointment/<int:doctor_id>', methods=['GET', 'POST'])
+@login_required
+def book_doctor_appointment(doctor_id):
+    if current_user.role != 'patient':
+        return "You are not authorized to access this page."
+    form = AppointmentForm()
+    # Filter the doctor choices to only include the selected doctor
+    form.doctor.choices = [(doctor_id, f"{db.session.get(User, doctor_id).name} ({db.session.get(User, doctor_id).specialization})")]
+    if form.validate_on_submit():
+        appointment_time = time(hour=form.hours.data, minute=form.minutes.data)
+        appointment = Appointment(
+            appointment_date=form.date.data,
+            appointment_time=appointment_time,
+            patient_id=current_user.id,
+            doctor_id=doctor_id  # Use the doctor_id from the URL
+        )
+        db.session.add(appointment)
+        db.session.commit()
+        flash('Your appointment has been booked!', 'success')
+        return redirect(url_for('profile'))
+    return render_template('patient/appointments.html', form=form)
+
 # Doctor routes
 @app.route('/doctor/dashboard')
 @login_required
@@ -289,6 +311,7 @@ def add_doctor():
             flash('Doctor added successfully!')
             return redirect(url_for('add_doctor'))
         else:
+            # Pass the form and doctors to the template when validation fails
             return render_template('admin/doctors.html', form=form, doctors=User.query.filter_by(role='doctor').all())
 
     doctors = User.query.filter_by(role='doctor').all()
@@ -458,6 +481,22 @@ def admin_delete_staff(id):
     db.session.commit()
     flash('Staff deleted successfully!')
     return redirect(url_for('add_staff'))  # Redirect to add_staff
+
+@app.route('/search_doctors', methods=['GET', 'POST'])
+@login_required
+def search_doctors():
+    if current_user.role != 'patient':
+        return "You are not authorized to access this page."
+    form = DoctorSearchForm()
+    doctors = User.query.filter_by(role='doctor').all()  # Query all doctors by default
+    if form.validate_on_submit():
+        search_term = form.search_term.data
+        search_by = form.search_by.data
+        if search_by == 'name':
+            doctors = User.query.filter(User.name.ilike(f'%{search_term}%'), User.role == 'doctor').all()
+        elif search_by == 'specialization':
+            doctors = User.query.filter(User.specialization.ilike(f'%{search_term}%'), User.role == 'doctor').all()
+    return render_template('patient/search_doctors.html', form=form, doctors=doctors)
 
 def create_test_users():
     # Create test patient
