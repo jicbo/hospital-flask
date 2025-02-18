@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateTimeField, TextAreaField, SelectField, IntegerField, DateField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional, Length, NumberRange
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional, Length, NumberRange, InputRequired
 from models import User
 
 class RegistrationForm(FlaskForm):
@@ -39,7 +39,7 @@ class DoctorRegistrationForm(FlaskForm):
 class AppointmentForm(FlaskForm):
     date = DateField('Appointment Date', format='%Y-%m-%d', validators=[DataRequired()])
     hours = IntegerField('Hours', validators=[DataRequired(), NumberRange(min=8, max=20)])
-    minutes = IntegerField('Minutes', validators=[DataRequired(), NumberRange(min=0, max=59)])
+    minutes = IntegerField('Minutes', validators=[InputRequired(), NumberRange(min=0, max=59)])
     notes = TextAreaField('Notes')
     doctor = SelectField('Doctor', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Book Appointment')
@@ -96,7 +96,7 @@ class InventoryForm(FlaskForm):
 class DoctorAppointmentForm(FlaskForm):
     date = DateField('Appointment Date', format='%Y-%m-%d', validators=[DataRequired()])
     hours = IntegerField('Hours', validators=[DataRequired(), NumberRange(min=8, max=20)])
-    minutes = IntegerField('Minutes', validators=[DataRequired(), NumberRange(min=0, max=59)])
+    minutes = SelectField('Minutes', choices=[(i, str(i).zfill(2)) for i in range(0, 60, 15)], validators=[DataRequired()])
     patient = SelectField('Patient', coerce=int, validators=[DataRequired()])
     notes = TextAreaField('Notes')
     submit = SubmitField('Schedule Appointment')

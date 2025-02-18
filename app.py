@@ -135,6 +135,9 @@ def book_doctor_appointment(doctor_id):
         db.session.commit()
         flash('Your appointment has been booked!', 'success')
         return redirect(url_for('profile'))
+    elif request.method == 'POST':
+        # If the form is submitted but not valid, print the errors
+        print(form.errors)
     return render_template('patient/appointments.html', form=form)
 
 # Doctor routes
@@ -248,9 +251,10 @@ def schedule_appointment():
     if patient_id:
         form.patient.data = patient_id  # Pre-select the patient
     if form.validate_on_submit():
-        appointment_time = time(hour=form.hours.data, minute=form.minutes.data)
+        appointment_date = form.date.data
+        appointment_time = time(hour=int(form.hours.data), minute=int(form.minutes.data))
         appointment = Appointment(
-            appointment_date=form.date.data,
+            appointment_date=appointment_date,
             appointment_time=appointment_time,
             patient_id=form.patient.data,
             doctor_id=current_user.id
@@ -259,6 +263,8 @@ def schedule_appointment():
         db.session.commit()
         flash('Appointment scheduled successfully!', 'success')
         return redirect(url_for('doctor_dashboard'))
+    elif request.method == 'POST':
+        print(form.errors)
     return render_template('doctor/schedule_appointment.html', form=form)
 
 # Admin Routes
