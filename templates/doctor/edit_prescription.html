@@ -1,0 +1,17 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Edit Prescription</h1>
+<form method="POST">
+	{{ form.hidden_tag() }}
+	<div class="form-group">
+		{{ form.medication.label }} {{ form.medication(class="form-control") }}
+	</div>
+	<div class="form-group">
+		{{ form.dosage.label }} {{ form.dosage(class="form-control") }}
+	</div>
+	<div class="form-group">
+		{{ form.instructions.label }} {{ form.instructions(class="form-control")
+		}}
+	</div>
+	<div class="form-group">{{ form.submit(class="btn btn-primary") }}</div>
+</form>
+{% endblock %}

@@ -59,6 +59,12 @@ class PrescriptionForm(FlaskForm):
     instructions = TextAreaField('Instructions', validators=[DataRequired()])
     submit = SubmitField('Issue Prescription')
 
+class EditPrescriptionForm(FlaskForm):
+    medication = StringField('Medication', validators=[DataRequired()])
+    dosage = StringField('Dosage', validators=[DataRequired()])
+    instructions = TextAreaField('Instructions', validators=[DataRequired()])
+    submit = SubmitField('Update Prescription')
+
 class DoctorSearchForm(FlaskForm):
     search_term = StringField('Search', validators=[Optional()])
     search_by = SelectField('Search By', choices=[('name', 'Name'), ('specialization', 'Specialization')], validators=[DataRequired()])

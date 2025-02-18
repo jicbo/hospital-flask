@@ -18,11 +18,30 @@
 <h2>Medical Records</h2>
 <ul>
 	{% for record in medical_records %}
-	<li>{{ record.id }} - {{ record.report }}</li>
+	<li>
+		{{ record.id }} - {{ record.report }}
+		<a
+			href="{{ url_for('edit_medical_record', record_id=record.id) }}"
+			class="btn btn-sm btn-secondary"
+			>Edit</a
+		>
+		<form
+			action="{{ url_for('delete_medical_record', record_id=record.id) }}"
+			method="POST"
+			style="display: inline"
+		>
+			<button type="submit" class="btn btn-sm btn-danger">Delete</button>
+		</form>
+	</li>
 	{% else %}
 	<li>No medical records available.</li>
 	{% endfor %}
 </ul>
+<a
+	href="{{ url_for('add_medical_record', appointment_id=0, patient_id=patient.id) }}"
+	class="btn btn-secondary"
+	>Add Medical Record</a
+>
 
 <h2>Prescriptions</h2>
 <ul>
@@ -31,9 +50,26 @@
 		{{ prescription.date.strftime('%Y-%m-%d %H:%M') }} - {{
 		prescription.medication }}: {{ prescription.dosage }} ({{
 		prescription.instructions }})
+		<a
+			href="{{ url_for('edit_prescription', prescription_id=prescription.id) }}"
+			class="btn btn-sm btn-secondary"
+			>Edit</a
+		>
+		<form
+			action="{{ url_for('delete_prescription', prescription_id=prescription.id) }}"
+			method="POST"
+			style="display: inline"
+		>
+			<button type="submit" class="btn btn-sm btn-danger">Delete</button>
+		</form>
 	</li>
 	{% else %}
 	<li>No prescriptions available.</li>
 	{% endfor %}
 </ul>
+<a
+	href="{{ url_for('issue_prescription', patient_id=patient.id) }}"
+	class="btn btn-primary"
+	>Add Prescription</a
+>
 {% endblock %}

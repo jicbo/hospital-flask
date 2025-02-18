@@ -47,10 +47,11 @@ content %}
 
 <h2>Prescriptions</h2>
 <ul>
-	{% for prescription in current_user.prescriptions %}
+	{% for prescription in prescriptions %}
 	<li>
-		{{ prescription.date }} - {{ prescription.medication }}: {{
-		prescription.dosage }} ({{ prescription.instructions }})
+		{{ prescription.date.strftime('%Y-%m-%d %H:%M') }} - {{
+		prescription.medication }}: {{ prescription.dosage }} ({{
+		prescription.instructions }})
 	</li>
 	{% else %}
 	<li>No prescriptions available.</li>

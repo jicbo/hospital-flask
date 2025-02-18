@@ -33,7 +33,6 @@ class Appointment(db.Model):
     appointment_time = db.Column(db.Time, nullable=False)
     patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    medical_record_id = db.Column(db.Integer, db.ForeignKey('medical_record.id'))
     patient = db.relationship('User', foreign_keys=[patient_id], backref='patient_appointments')
     notes = db.Column(db.Text, nullable=True)
 
@@ -48,13 +47,6 @@ class MedicalRecord(db.Model):
 
     def __repr__(self):
         return f'<MedicalRecord {self.id}>'
-
-class MedicalReport(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    date = db.Column(db.DateTime, nullable=False)
-    report = db.Column(db.Text)
 
 class Prescription(db.Model):
     __tablename__ = 'prescription'

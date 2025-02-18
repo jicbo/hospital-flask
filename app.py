@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, time
 import os
 from models import User, Appointment, MedicalRecord, Prescription, db  # Import the models and db
-from forms import LoginForm, RegistrationForm, AddDoctorForm, AddStaffForm, ResourceForm, PricingForm, InventoryForm, AppointmentForm, MedicalRecordForm, DoctorSearchForm, PrescriptionForm, DoctorAppointmentForm
+from forms import LoginForm, RegistrationForm, AddDoctorForm, AddStaffForm, ResourceForm, PricingForm, InventoryForm, AppointmentForm, MedicalRecordForm, DoctorSearchForm, PrescriptionForm, DoctorAppointmentForm, EditPrescriptionForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email
 from flask_wtf import FlaskForm
@@ -91,7 +91,8 @@ def profile():
     now = datetime.now()
     appointments = Appointment.query.filter_by(patient_id=current_user.id).order_by(Appointment.appointment_date, Appointment.appointment_time).all()
     medical_records = MedicalRecord.query.filter_by(patient_id=current_user.id).all()
-    return render_template('patient/profile.html', appointments=appointments, medical_records=medical_records, now=now)
+    prescriptions = Prescription.query.filter_by(patient_id=current_user.id).all()
+    return render_template('patient/profile.html', appointments=appointments, medical_records=medical_records, prescriptions=prescriptions, now=now)
 
 @app.route('/book_appointment', methods=['GET', 'POST'])
 @login_required
@@ -173,23 +174,22 @@ def add_report(appointment_id):
             flash('Please enter a medical report.')
     return render_template('doctor/medical_report.html', appointment=appointment)
 
-@app.route('/doctor/add_medical_record/<int:appointment_id>', methods=['GET', 'POST'])
+@app.route('/doctor/add_medical_record/<int:patient_id>', methods=['GET', 'POST'])
 @login_required
-def add_medical_record(appointment_id):
+def add_medical_record(patient_id):
     if current_user.role != 'doctor':
         return "You are not authorized to access this page."
-    appointment = Appointment.query.get_or_404(appointment_id)
     form = MedicalRecordForm()
     if form.validate_on_submit():
         medical_record = MedicalRecord(
-            patient_id=appointment.patient_id,
+            patient_id=patient_id,
             report=form.report.data
         )
         db.session.add(medical_record)
         db.session.commit()
         flash('Medical record added successfully!')
-        return redirect(url_for('doctor_dashboard'))
-    return render_template('doctor/add_medical_record.html', form=form, appointment=appointment)
+        return redirect(url_for('patient_profile', patient_id=patient_id))
+    return render_template('doctor/add_medical_record.html', form=form, patient_id=patient_id)
 
 @app.route('/doctor/search_patients', methods=['GET', 'POST'])
 @login_required
@@ -230,7 +230,7 @@ def issue_prescription():
         db.session.add(prescription)
         db.session.commit()
         flash('Prescription issued successfully!', 'success')
-        return redirect(url_for('doctor_dashboard'))
+        return redirect(url_for('patient_profile', patient_id=form.patient.data))
     return render_template('doctor/issue_prescription.html', form=form)
 
 @app.route('/doctor/patient_profile/<int:patient_id>')
@@ -271,6 +271,65 @@ def schedule_appointment():
     elif request.method == 'POST':
         print(form.errors)
     return render_template('doctor/schedule_appointment.html', form=form)
+
+@app.route('/doctor/edit_medical_record/<int:record_id>', methods=['GET', 'POST'])
+@login_required
+def edit_medical_record(record_id):
+    if current_user.role != 'doctor':
+        return "You are not authorized to access this page."
+    medical_record = MedicalRecord.query.get_or_404(record_id)
+    form = MedicalRecordForm(obj=medical_record)
+    if form.validate_on_submit():
+        medical_record.report = form.report.data
+        db.session.commit()
+        flash('Medical record updated successfully!')
+        return redirect(url_for('patient_profile', patient_id=medical_record.patient_id))
+    return render_template('doctor/edit_medical_record.html', form=form, medical_record=medical_record)
+
+@app.route('/doctor/delete_medical_record/<int:record_id>', methods=['POST'])
+@login_required
+def delete_medical_record(record_id):
+    if current_user.role != 'doctor':
+        return "You are not authorized to access this page."
+    medical_record = MedicalRecord.query.get_or_404(record_id)
+    patient_id = medical_record.patient_id
+    db.session.delete(medical_record)
+    db.session.commit()
+    flash('Medical record deleted successfully!')
+    return redirect(url_for('patient_profile', patient_id=patient_id))
+
+@app.route('/doctor/edit_prescription/<int:prescription_id>', methods=['GET', 'POST'])
+@login_required
+def edit_prescription(prescription_id):
+    if current_user.role != 'doctor':
+        return "You are not authorized to access this page."
+    prescription = Prescription.query.get_or_404(prescription_id)
+    form = EditPrescriptionForm(obj=prescription)
+    if form.validate_on_submit():
+        print("Form validated successfully")
+        prescription.medication = form.medication.data
+        prescription.dosage = form.dosage.data
+        prescription.instructions = form.instructions.data
+        db.session.commit()
+        flash('Prescription updated successfully!')
+        return redirect(url_for('patient_profile', patient_id=prescription.patient_id))
+    else:
+        if request.method == 'POST':
+            print("Form validation failed")
+            print(form.errors)
+    return render_template('doctor/edit_prescription.html', form=form, prescription=prescription)
+
+@app.route('/doctor/delete_prescription/<int:prescription_id>', methods=['POST'])
+@login_required
+def delete_prescription(prescription_id):
+    if current_user.role != 'doctor':
+        return "You are not authorized to access this page."
+    prescription = Prescription.query.get_or_404(prescription_id)
+    patient_id = prescription.patient_id
+    db.session.delete(prescription)
+    db.session.commit()
+    flash('Prescription deleted successfully!')
+    return redirect(url_for('patient_profile', patient_id=patient_id))
 
 # Admin Routes
 @app.route('/admin/dashboard')
