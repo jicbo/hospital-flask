@@ -41,19 +41,21 @@
 					<li class="nav-item">
 						<a
 							class="nav-link"
-							href="{{ url_for('book_appointment') }}"
+							href="{{ url_for('patient.book_appointment') }}"
 							>Book Appointment</a
 						>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="{{ url_for('profile') }}"
+						<a
+							class="nav-link"
+							href="{{ url_for('patient.profile') }}"
 							>Profile</a
 						>
 					</li>
 					<li class="nav-item">
 						<a
 							class="nav-link"
-							href="{{ url_for('search_doctors') }}"
+							href="{{ url_for('patient.search_doctors') }}"
 							>Search Doctors</a
 						>
 					</li>
@@ -61,21 +63,21 @@
 					<li class="nav-item">
 						<a
 							class="nav-link"
-							href="{{ url_for('doctor_dashboard') }}"
+							href="{{ url_for('doctor.doctor_dashboard') }}"
 							>Doctor Dashboard</a
 						>
 					</li>
 					<li class="nav-item">
 						<a
 							class="nav-link"
-							href="{{ url_for('schedule_appointment') }}"
+							href="{{ url_for('doctor.schedule_appointment') }}"
 							>Schedule Appointment</a
 						>
 					</li>
 					<li class="nav-item">
 						<a
 							class="nav-link"
-							href="{{ url_for('search_patients') }}"
+							href="{{ url_for('doctor.search_patients') }}"
 							>Search Patients</a
 						>
 					</li>
@@ -83,55 +85,61 @@
 					<li class="nav-item">
 						<a
 							class="nav-link"
-							href="{{ url_for('admin_dashboard') }}"
+							href="{{ url_for('admin.admin_dashboard') }}"
 							>Dashboard</a
 						>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="{{ url_for('add_doctor') }}"
+						<a
+							class="nav-link"
+							href="{{ url_for('admin.add_doctor') }}"
 							>Add Doctor</a
 						>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="{{ url_for('add_staff') }}"
+						<a
+							class="nav-link"
+							href="{{ url_for('admin.add_staff') }}"
 							>Add Staff</a
 						>
 					</li>
 					<li class="nav-item">
 						<a
 							class="nav-link"
-							href="{{ url_for('manage_resources') }}"
+							href="{{ url_for('admin.manage_resources') }}"
 							>Manage Resources</a
 						>
 					</li>
 					<li class="nav-item">
 						<a
 							class="nav-link"
-							href="{{ url_for('manage_pricing') }}"
+							href="{{ url_for('admin.manage_pricing') }}"
 							>Manage Pricing</a
 						>
 					</li>
 					<li class="nav-item">
 						<a
 							class="nav-link"
-							href="{{ url_for('manage_inventory') }}"
+							href="{{ url_for('admin.manage_inventory') }}"
 							>Manage Inventory</a
 						>
 					</li>
 					{% endif %}
 					<li class="nav-item">
-						<a class="nav-link" href="{{ url_for('logout') }}"
+						<a class="nav-link" href="{{ url_for('auth.logout') }}"
 							>Logout</a
 						>
 					</li>
 					{% else %}
 					<li class="nav-item">
-						<a class="nav-link" href="{{ url_for('login') }}"
+						<a class="nav-link" href="{{ url_for('auth.login') }}"
 							>Login</a
 						>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="{{ url_for('register') }}"
+						<a
+							class="nav-link"
+							href="{{ url_for('auth.register') }}"
 							>Register</a
 						>
 					</li>

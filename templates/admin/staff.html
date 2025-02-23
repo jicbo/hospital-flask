@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block content %}
 <h1>Manage Staff</h1>
 <h2>Add New Staff</h2>
-<form method="POST" action="{{ url_for('add_staff') }}">
+<form method="POST" action="{{ url_for('admin.add_staff') }}">
 	{{ form.hidden_tag() }}
 	<div class="form-group">
 		{{ form.name.label }}<br />
@@ -40,10 +40,10 @@
 	{% for staff in staff_members %}
 	<li>
 		{{ staff.name }} - {{ staff.position }}
-		<a href="{{ url_for('admin_edit_staff', id=staff.id) }}">Edit</a>
+		<a href="{{ url_for('admin.admin_edit_staff', id=staff.id) }}">Edit</a>
 		<form
 			method="POST"
-			action="{{ url_for('admin_delete_staff', id=staff.id) }}"
+			action="{{ url_for('admin.admin_delete_staff', id=staff.id) }}"
 			style="display: inline"
 		>
 			<input

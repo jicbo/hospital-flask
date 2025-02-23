@@ -35,7 +35,7 @@
 					<td>{{ appointment.notes }}</td>
 					<td>
 						<a
-							href="{{ url_for('add_report', appointment_id=appointment.id) }}"
+							href="{{ url_for('doctor.add_report', appointment_id=appointment.id) }}"
 							class="btn btn-primary btn-sm"
 							>Add Report</a
 						>
@@ -78,7 +78,9 @@
 		<p>No past appointments.</p>
 		{% endif %}
 
-		<a href="{{ url_for('issue_prescription') }}" class="btn btn-primary"
+		<a
+			href="{{ url_for('doctor.issue_prescription') }}"
+			class="btn btn-primary"
 			>Issue Prescription</a
 		>
 		{% endblock %}

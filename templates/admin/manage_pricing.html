@@ -1,6 +1,6 @@
 {% extends 'base.html' %} {% block content %}
 <h1>Manage Pricing</h1>
-<form method="POST" action="">
+<form method="POST" action="{{ url_for('admin.manage_pricing') }}">
 	{{ form.hidden_tag() }}
 	<div class="form-group">
 		{{ form.service.label }} {{ form.service(class="form-control") }}

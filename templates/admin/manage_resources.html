@@ -1,6 +1,6 @@
 {% extends 'base.html' %} {% block content %}
 <h1>Manage Resources</h1>
-<form method="POST" action="">
+<form method="POST" action="{{ url_for('admin.manage_resources') }}">
 	{{ form.hidden_tag() }}
 	<div class="form-group">
 		{{ form.name.label }} {{ form.name(class="form-control") }}

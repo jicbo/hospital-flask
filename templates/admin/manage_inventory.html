@@ -1,6 +1,6 @@
 {% extends 'base.html' %} {% block content %}
 <h1>Manage Inventory</h1>
-<form method="POST" action="">
+<form method="POST" action="{{ url_for('admin.manage_inventory') }}">
 	{{ form.hidden_tag() }}
 	<div class="form-group">
 		{{ form.item.label }} {{ form.item(class="form-control") }}

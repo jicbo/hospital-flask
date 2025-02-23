@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block content %}
 <h1>Manage Doctors</h1>
 <h2>Add New Doctor</h2>
-<form method="POST" action="{{ url_for('add_doctor') }}">
+<form method="POST" action="{{ url_for('admin.add_doctor') }}">
 	{{ form.hidden_tag() }}
 	<div class="form-group">
 		{{ form.name.label }}<br />
@@ -62,10 +62,12 @@
 	{% for doctor in doctors %}
 	<li>
 		{{ doctor.name }} - {{ doctor.specialization }}
-		<a href="{{ url_for('admin_edit_doctor', id=doctor.id) }}">Edit</a>
+		<a href="{{ url_for('admin.admin_edit_doctor', id=doctor.id) }}"
+			>Edit</a
+		>
 		<form
 			method="POST"
-			action="{{ url_for('admin_delete_doctor', id=doctor.id) }}"
+			action="{{ url_for('admin.admin_delete_doctor', id=doctor.id) }}"
 			style="display: inline"
 		>
 			<input

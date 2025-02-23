@@ -23,7 +23,7 @@
 	<li>
 		{{ doctor.name }} - {{ doctor.specialization }}
 		<a
-			href="{{ url_for('book_doctor_appointment', doctor_id=doctor.id) }}"
+			href="{{ url_for('patient.book_doctor_appointment', doctor_id=doctor.id) }}"
 			class="btn btn-primary btn-sm"
 			>Book Appointment</a
 		>

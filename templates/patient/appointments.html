@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block title %}Book Appointment{% endblock %} {%
 block content %}
 <h1>Book Appointment</h1>
-<form method="POST" action="{{ url_for('book_appointment') }}">
+<form method="POST" action="{{ url_for('patient.book_appointment') }}">
 	{{ form.hidden_tag() }}
 	<div class="form-group">
 		{{ form.date.label }}
