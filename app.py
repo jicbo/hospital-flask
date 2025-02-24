@@ -5,10 +5,10 @@ from datetime import datetime
 import os
 from models import User, db  # Import the models and db
 
-from views.admin import bp as admin_bp
-from views.patient import bp as patient_bp
-from views.doctor import bp as doctor_bp
-from views.auth import bp as auth_bp
+from controllers.admin import bp as admin_bp
+from controllers.patient import bp as patient_bp
+from controllers.doctor import bp as doctor_bp
+from controllers.auth import bp as auth_bp
 
 app = Flask(__name__)
 app.config.from_object('config.Config')  # Load configuration from config.py
