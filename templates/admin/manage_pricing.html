@@ -1,5 +1,5 @@
-{% extends 'base.html' %} {% block content %}
-<h1>Manage Pricing</h1>
+{% extends "base.html" %} {% block content %}
+<h2>Manage Pricing</h2>
 <form method="POST" action="{{ url_for('admin.manage_pricing') }}">
 	{{ form.hidden_tag() }}
 	<div class="form-group">
@@ -8,6 +8,23 @@
 	<div class="form-group">
 		{{ form.price.label }} {{ form.price(class="form-control") }}
 	</div>
-	{{ form.submit(class="btn btn-primary") }}
+	<div class="form-group">{{ form.submit(class="btn btn-primary") }}</div>
 </form>
+
+<h3>Existing Pricing</h3>
+<ul>
+	{% for pricing in pricing_list %}
+	<li>
+		{{ pricing.service }} - Price: {{ pricing.price }}
+		<a href="{{ url_for('admin.edit_pricing', id=pricing.id) }}">Edit</a>
+		<form
+			method="POST"
+			action="{{ url_for('admin.delete_pricing', id=pricing.id) }}"
+			style="display: inline"
+		>
+			<button type="submit" class="btn btn-danger">Delete</button>
+		</form>
+	</li>
+	{% endfor %}
+</ul>
 {% endblock %}

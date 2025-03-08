@@ -37,15 +37,16 @@ def index():
     return render_template('index.html')
 
 def create_test_users():
-    # Create test patient
-    if not User.query.filter_by(email='danijela@gmail.com').first():
-        patient = User(
-            email='danijela@gmail.com',
-            name='Danijela',
-            role='patient'
+
+    # Create admin user
+    if not User.query.filter_by(email='admin@example.com').first():
+        admin = User(
+            email='admin@example.com',
+            name='Admin',
+            role='admin'
         )
-        patient.set_password('X#Kfv8$}Vj$#]]:')
-        db.session.add(patient)
+        admin.set_password('passwordpassword')
+        db.session.add(admin)
 
     # Create test doctor
     if not User.query.filter_by(email='milica@gmail.com').first():
@@ -58,15 +59,15 @@ def create_test_users():
         doctor.set_password("be35v+'h=KjnSn")
         db.session.add(doctor)
 
-    # Create admin user
-    if not User.query.filter_by(email='admin@example.com').first():
-        admin = User(
-            email='admin@example.com',
-            name='Admin',
-            role='admin'
+    # Create test patient
+    if not User.query.filter_by(email='danijela@gmail.com').first():
+        patient = User(
+            email='danijela@gmail.com',
+            name='Danijela',
+            role='patient'
         )
-        admin.set_password('passwordpassword')
-        db.session.add(admin)
+        patient.set_password('X#Kfv8$}Vj$#]]:')
+        db.session.add(patient)
 
     # Create additional test patients
     if not User.query.filter_by(email='jovan@gmail.com').first():

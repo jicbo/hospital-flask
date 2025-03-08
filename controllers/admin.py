@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from models import User, db
+from models import User, db, Pricing, Inventory
 from forms import AddDoctorForm, AddStaffForm, ResourceForm, PricingForm, InventoryForm
 
 bp = Blueprint('admin', __name__)
@@ -103,15 +103,47 @@ def manage_resources():
 @login_required
 def manage_pricing():
     if current_user.role != 'admin':
-        return "You are not authorized to access this page."
+        return redirect(url_for('auth.login'))
+    
     form = PricingForm()
     if form.validate_on_submit():
-        service = form.service.data
-        price = form.price.data
-        # Logic to update pricing in the database
-        flash('Pricing updated successfully!')
-        return redirect(url_for('admin.admin_dashboard'))
-    return render_template('admin/manage_pricing.html', form=form)
+        pricing = Pricing(
+            service=form.service.data,
+            price=form.price.data
+        )
+        db.session.add(pricing)
+        db.session.commit()
+        return redirect(url_for('admin.manage_pricing'))
+    
+    pricing_list = Pricing.query.all()
+    return render_template('admin/manage_pricing.html', form=form, pricing_list=pricing_list)
+
+@bp.route('/admin/edit_pricing/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_pricing(id):
+    if current_user.role != 'admin':
+        return redirect(url_for('auth.login'))
+    
+    pricing = Pricing.query.get_or_404(id)
+    form = PricingForm(obj=pricing)
+    if form.validate_on_submit():
+        pricing.service = form.service.data
+        pricing.price = form.price.data
+        db.session.commit()
+        return redirect(url_for('admin.manage_pricing'))
+    
+    return render_template('admin/edit_pricing.html', form=form, pricing=pricing)
+
+@bp.route('/admin/delete_pricing/<int:id>', methods=['POST'])
+@login_required
+def delete_pricing(id):
+    if current_user.role != 'admin':
+        return redirect(url_for('auth.login'))
+    
+    pricing = Pricing.query.get_or_404(id)
+    db.session.delete(pricing)
+    db.session.commit()
+    return redirect(url_for('admin.manage_pricing'))
 
 @bp.route('/admin/manage_inventory', methods=['GET', 'POST'])
 @login_required
@@ -120,12 +152,45 @@ def manage_inventory():
         return "You are not authorized to access this page."
     form = InventoryForm()
     if form.validate_on_submit():
-        item = form.item.data
+        item_name = form.item_name.data
         quantity = form.quantity.data
-        # Logic to update inventory in the database
+        inventory_item = Inventory.query.filter_by(item_name=item_name).first()
+        if inventory_item:
+            inventory_item.quantity = quantity
+        else:
+            inventory_item = Inventory(item_name=item_name, quantity=quantity)
+            db.session.add(inventory_item)
+        db.session.commit()
         flash('Inventory updated successfully!')
-        return redirect(url_for('admin.admin_dashboard'))
-    return render_template('admin/manage_inventory.html', form=form)
+        return redirect(url_for('admin.manage_inventory'))
+    inventory = Inventory.query.all()
+    return render_template('admin/manage_inventory.html', form=form, inventory=inventory)
+
+@bp.route('/admin/edit_inventory/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_inventory(id):
+    if current_user.role != 'admin':
+        return "You are not authorized to access this page."
+    inventory_item = Inventory.query.get_or_404(id)
+    form = InventoryForm(obj=inventory_item)
+    if form.validate_on_submit():
+        inventory_item.item_name = form.item_name.data
+        inventory_item.quantity = form.quantity.data
+        db.session.commit()
+        flash('Inventory item updated successfully!')
+        return redirect(url_for('admin.manage_inventory'))
+    return render_template('admin/edit_inventory.html', form=form, inventory_item=inventory_item)
+
+@bp.route('/admin/delete_inventory/<int:id>', methods=['POST'])
+@login_required
+def delete_inventory(id):
+    if current_user.role != 'admin':
+        return "You are not authorized to access this page."
+    inventory_item = Inventory.query.get_or_404(id)
+    db.session.delete(inventory_item)
+    db.session.commit()
+    flash('Inventory item deleted successfully!')
+    return redirect(url_for('admin.manage_inventory'))
 
 @bp.route('/admin/edit_doctor/<int:id>', methods=['GET', 'POST'])
 @login_required

@@ -95,7 +95,7 @@ class PricingForm(FlaskForm):
     submit = SubmitField('Update Price')
 
 class InventoryForm(FlaskForm):
-    item = StringField('Item Name', validators=[DataRequired()])
+    item_name = StringField('Item Name', validators=[DataRequired()])
     quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
     submit = SubmitField('Update Inventory')
 
