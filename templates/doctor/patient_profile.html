@@ -38,7 +38,7 @@
 	{% endfor %}
 </ul>
 <a
-	href="{{ url_for('add_medical_record', appointment_id=0, patient_id=patient.id) }}"
+	href="{{ url_for('doctor.add_medical_record', appointment_id=0, patient_id=patient.id) }}"
 	class="btn btn-secondary"
 	>Add Medical Record</a
 >
@@ -68,7 +68,7 @@
 	{% endfor %}
 </ul>
 <a
-	href="{{ url_for('issue_prescription', patient_id=patient.id) }}"
+	href="{{ url_for('doctor.issue_prescription', patient_id=patient.id) }}"
 	class="btn btn-primary"
 	>Add Prescription</a
 >

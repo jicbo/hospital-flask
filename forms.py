@@ -32,8 +32,8 @@ class DoctorRegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
     def validate_email(self, email):
-        doctor = Doctor.query.filter_by(email=email.data).first()
-        if doctor is not None:
+        user = User.query.filter_by(email=email.data).first()
+        if user is not None:
             raise ValidationError('Please use a different email address.')
 
 class AppointmentForm(FlaskForm):

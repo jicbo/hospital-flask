@@ -24,17 +24,21 @@ def book_appointment():
     form.doctor.choices = [(doctor.id, f"{doctor.name} ({doctor.specialization})") for doctor in User.query.filter_by(role='doctor').all()]
     if form.validate_on_submit():
         appointment_time = time(hour=form.hours.data, minute=form.minutes.data)
-        appointment = Appointment(
-            appointment_date=form.date.data,
-            appointment_time=appointment_time,
-            patient_id=current_user.id,
-            doctor_id=form.doctor.data,
-            notes=form.notes.data
-        )
-        db.session.add(appointment)
-        db.session.commit()
-        flash('Your appointment has been booked!', 'success')
-        return redirect(url_for('patient.profile'))
+        existing_appointment = Appointment.query.filter_by(doctor_id=form.doctor.data, appointment_date=form.date.data, appointment_time=appointment_time).first()
+        if existing_appointment:
+            flash('This time slot is already taken. Please choose a different time.', 'danger')
+        else:
+            appointment = Appointment(
+                appointment_date=form.date.data,
+                appointment_time=appointment_time,
+                patient_id=current_user.id,
+                doctor_id=form.doctor.data,
+                notes=form.notes.data
+            )
+            db.session.add(appointment)
+            db.session.commit()
+            flash('Your appointment has been booked!', 'success')
+            return redirect(url_for('patient.profile'))
     return render_template('patient/appointments.html', form=form)
 
 @bp.route('/book_appointment/<int:doctor_id>', methods=['GET', 'POST'])

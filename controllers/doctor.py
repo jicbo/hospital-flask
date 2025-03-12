@@ -96,15 +96,12 @@ def issue_prescription():
         return redirect(url_for('doctor.patient_profile', patient_id=form.patient.data))
     return render_template('doctor/issue_prescription.html', form=form)
 
-@bp.route('/doctor/patient_profile/<int:patient_id>')
-@login_required
+@bp.route('/doctor/patient_profile/<int:patient_id>', methods=['GET'])
 def patient_profile(patient_id):
-    if current_user.role != 'doctor':
-        return "You are not authorized to access this page."
-    patient = User.query.get_or_404(patient_id)
-    appointments = Appointment.query.filter_by(patient_id=patient.id).order_by(Appointment.appointment_date, Appointment.appointment_time).all()
-    medical_records = MedicalRecord.query.filter_by(patient_id=patient.id).all()
-    prescriptions = Prescription.query.filter_by(patient_id=patient.id).all()
+    patient = User.query.get_or_404(patient_id)  # Change Patient to User
+    appointments = Appointment.query.filter_by(patient_id=patient_id).all()
+    medical_records = MedicalRecord.query.filter_by(patient_id=patient_id).all()
+    prescriptions = Prescription.query.filter_by(patient_id=patient_id).all()
     return render_template('doctor/patient_profile.html', patient=patient, appointments=appointments, medical_records=medical_records, prescriptions=prescriptions)
 
 @bp.route('/doctor/schedule_appointment', methods=['GET', 'POST'])
@@ -120,17 +117,21 @@ def schedule_appointment():
     if form.validate_on_submit():
         appointment_date = form.date.data
         appointment_time = time(hour=int(form.hours.data), minute=int(form.minutes.data))
-        appointment = Appointment(
-            appointment_date=appointment_date,
-            appointment_time=appointment_time,
-            patient_id=form.patient.data,
-            doctor_id=current_user.id,
-            notes=form.notes.data
-        )
-        db.session.add(appointment)
-        db.session.commit()
-        flash('Appointment scheduled successfully!', 'success')
-        return redirect(url_for('doctor.doctor_dashboard'))
+        existing_appointment = Appointment.query.filter_by(doctor_id=current_user.id, appointment_date=appointment_date, appointment_time=appointment_time).first()
+        if existing_appointment:
+            flash('This time slot is already taken. Please choose a different time.', 'danger')
+        else:
+            appointment = Appointment(
+                appointment_date=appointment_date,
+                appointment_time=appointment_time,
+                patient_id=form.patient.data,
+                doctor_id=current_user.id,
+                notes=form.notes.data
+            )
+            db.session.add(appointment)
+            db.session.commit()
+            flash('Appointment scheduled successfully!', 'success')
+            return redirect(url_for('doctor.doctor_dashboard'))
     elif request.method == 'POST':
         print(form.errors)
     return render_template('doctor/schedule_appointment.html', form=form)
