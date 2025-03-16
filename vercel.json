@@ -10,5 +10,14 @@
 			"src": "/(.*)",
 			"dest": "app.py"
 		}
-	]
+	],
+	"env": {
+		"PYTHONUNBUFFERED": "1"
+	},
+	"build": {
+		"env": {
+			"FLASK_APP": "app.py"
+		}
+	},
+	"start": "python app.py"
 }
