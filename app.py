@@ -14,16 +14,21 @@ from controllers.auth import bp as auth_bp
 app = Flask(__name__)
 app.config.from_object('config.Config')  # Load configuration from config.py
 
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Initialize the database with the app
-db.init_app(app)
+try:
+    db.init_app(app)
+    logger.info("Database initialized successfully")
+except Exception as e:
+    logger.error(f"Database initialization error: {e}")
+    raise
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
-
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # User loader callback
 @login_manager.user_loader
@@ -115,6 +120,8 @@ if __name__ == '__main__':
         try:
             db.create_all()  # Create the database schema
             create_test_users()
+            logger.info("Database schema created successfully")
             app.run(debug=True)
         except Exception as e:
             logger.error(f"Error during app initialization: {e}")
+            raise
