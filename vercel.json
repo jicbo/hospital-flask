@@ -4,7 +4,10 @@
 		{
 			"src": "wsgi.py",
 			"use": "@vercel/python",
-			"config": { "requirements": "requirements.txt" }
+			"config": {
+				"maxLambdaSize": "15mb",
+				"requirements": "requirements.txt"
+			}
 		}
 	],
 	"routes": [
@@ -18,8 +21,13 @@
 		"FLASK_APP": "wsgi.py",
 		"FLASK_ENV": "production",
 		"SQLALCHEMY_TRACK_MODIFICATIONS": "False",
-		"SQLALCHEMY_ECHO": "True",
-		"SQLALCHEMY_ENGINE_OPTIONS": "{\"pool_size\": 1, \"max_overflow\": 0}"
+		"SQLALCHEMY_ECHO": "False"
+	},
+	"functions": {
+		"api/*.py": {
+			"memory": 1024,
+			"maxDuration": 10
+		}
 	},
 	"git": {
 		"deploymentEnabled": {

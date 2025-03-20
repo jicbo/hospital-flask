@@ -34,24 +34,30 @@ app.register_blueprint(patient_bp)
 app.register_blueprint(doctor_bp)
 app.register_blueprint(auth_bp)
 
-# Create database tables and initial data
-with app.app_context():
+# Lazy database initialization
+def init_db():
     try:
-        # First check if tables exist
-        inspector = db.inspect(db.engine)
-        if not inspector.has_table("user"):
-            logger.info("Creating database tables...")
-            db.create_all()
-            logger.info("Created database tables successfully")
-            
-            # Only create test users if tables were just created
-            create_test_users()
-        else:
-            logger.info("Database tables already exist")
+        db.create_all()
+        return True
     except Exception as e:
         logger.error(f"Database initialization error: {e}")
-        if app.debug:
-            raise
+        return False
+
+@app.before_first_request
+def initialize_app():
+    with app.app_context():
+        try:
+            # Only create tables if they don't exist
+            inspector = db.inspect(db.engine)
+            tables_exist = inspector.get_table_names()
+            if not tables_exist:
+                init_db()
+                # Create admin user if it doesn't exist
+                admin = User.query.filter_by(email='admin@example.com').first()
+                if not admin:
+                    create_test_users()
+        except Exception as e:
+            logger.error(f"Initialization error: {e}")
 
 # Routes
 @app.route('/')
