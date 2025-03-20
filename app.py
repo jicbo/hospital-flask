@@ -12,27 +12,46 @@ from controllers.patient import bp as patient_bp
 from controllers.doctor import bp as doctor_bp
 from controllers.auth import bp as auth_bp
 
+# Initialize Flask app and config first
 app = Flask(__name__)
-app.config.from_object('config.Config')  # Load configuration from config.py
+app.config.from_object('config.Config')
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Initialize database
+db.init_app(app)
+
+# Initialize login manager after database
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
-
-# User loader callback
-@login_manager.user_loader
-def load_user(user_id):
-    return db.session.get(User, int(user_id))
 
 # Register blueprints
 app.register_blueprint(admin_bp)
 app.register_blueprint(patient_bp)
 app.register_blueprint(doctor_bp)
 app.register_blueprint(auth_bp)
+
+# Create database tables and initial data
+with app.app_context():
+    try:
+        # First check if tables exist
+        inspector = db.inspect(db.engine)
+        if not inspector.has_table("user"):
+            logger.info("Creating database tables...")
+            db.create_all()
+            logger.info("Created database tables successfully")
+            
+            # Only create test users if tables were just created
+            create_test_users()
+        else:
+            logger.info("Database tables already exist")
+    except Exception as e:
+        logger.error(f"Database initialization error: {e}")
+        if app.debug:
+            raise
 
 # Routes
 @app.route('/')
@@ -121,28 +140,6 @@ def create_test_users():
         logger.info("Test users created successfully.")
     except Exception as e:
         logger.error(f"Error creating test users: {e}")
-
-# Initialize the database without dropping tables in production
-try:
-    db.init_app(app)
-    with app.app_context():
-        try:
-            # Only create tables if they don't exist
-            db.create_all()
-            # Check if admin user exists before creating test users
-            admin = User.query.filter_by(email='admin@example.com').first()
-            if not admin:
-                create_test_users()
-            logger.info("Database initialized successfully")
-        except Exception as e:
-            logger.error(f"Database setup error: {e}")
-            # Don't raise the exception in production
-            if app.debug:
-                raise
-except Exception as e:
-    logger.error(f"Database initialization error: {e}")
-    if app.debug:
-        raise
 
 if __name__ == '__main__':
     app.run(debug=True)
