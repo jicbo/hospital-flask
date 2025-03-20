@@ -9,7 +9,7 @@ class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(512), nullable=False)  # Increased from 128 to 512
     role = db.Column(db.String(20), default='patient', nullable=False)  # role: admin, doctor, patient
     appointments = db.relationship('Appointment', backref='doctor', lazy=True, foreign_keys='Appointment.doctor_id')  # Specify foreign key
     medical_records = db.relationship('MedicalRecord', backref='patient', lazy=True)

@@ -122,20 +122,18 @@ def create_test_users():
     except Exception as e:
         logger.error(f"Error creating test users: {e}")
 
-# Update database initialization
-def init_db(app):
+# Initialize the database with the app
+try:
+    db.init_app(app)
     with app.app_context():
-        try:
-            db.init_app(app)
-            db.create_all()
-            create_test_users()
-            logger.info("Database initialized successfully")
-        except Exception as e:
-            logger.error(f"Database initialization error: {e}")
-            raise
-
-# Initialize everything
-init_db(app)
+        # Drop all tables and recreate them
+        db.drop_all()
+        db.create_all()
+        create_test_users()
+        logger.info("Database initialized successfully")
+except Exception as e:
+    logger.error(f"Database initialization error: {e}")
+    raise
 
 if __name__ == '__main__':
     app.run(debug=True)
