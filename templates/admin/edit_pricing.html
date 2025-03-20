@@ -1,13 +1,46 @@
 {% extends "base.html" %} {% block content %}
-<h2>Edit Pricing</h2>
-<form method="POST" action="{{ url_for('admin.edit_pricing', id=pricing.id) }}">
-	{{ form.hidden_tag() }}
-	<div class="form-group">
-		{{ form.service.label }} {{ form.service(class="form-control") }}
+<div class="container py-4">
+	<div class="page-section">
+		<h1 class="mb-4">
+			<i class="fas fa-dollar-sign me-2"></i>Edit Service Price
+		</h1>
+
+		<div class="card shadow-sm">
+			<div class="card-header bg-primary text-white">
+				<h2 class="h5 mb-0">
+					<i class="fas fa-edit me-2"></i>Edit Price Information
+				</h2>
+			</div>
+			<div class="card-body">
+				<form
+					method="POST"
+					action="{{ url_for('admin.edit_pricing', id=pricing.id) }}"
+				>
+					{{ form.hidden_tag() }}
+					<div class="row g-3">
+						<div class="col-md-6">
+							{{ form.service.label(class="form-label") }} {{
+							form.service(class="form-control") }}
+						</div>
+						<div class="col-md-6">
+							{{ form.price.label(class="form-label") }} {{
+							form.price(class="form-control") }}
+							<small class="text-muted"
+								>Enter price in dollars</small
+							>
+						</div>
+						<div class="col-12">
+							{{ form.submit(class="btn btn-primary") }}
+							<a
+								href="{{ url_for('admin.manage_pricing') }}"
+								class="btn btn-secondary"
+								>Cancel</a
+							>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
 	</div>
-	<div class="form-group">
-		{{ form.price.label }} {{ form.price(class="form-control") }}
-	</div>
-	<div class="form-group">{{ form.submit(class="btn btn-primary") }}</div>
-</form>
+</div>
 {% endblock %}

@@ -1,30 +1,122 @@
 {% extends 'base.html' %} {% block content %}
-<h1>Manage Inventory</h1>
-<form method="POST" action="{{ url_for('admin.manage_inventory') }}">
-	{{ form.hidden_tag() }}
-	<div class="form-group">
-		{{ form.item_name.label }} {{ form.item_name(class="form-control") }}
-	</div>
-	<div class="form-group">
-		{{ form.quantity.label }} {{ form.quantity(class="form-control") }}
-	</div>
-	{{ form.submit(class="btn btn-primary") }}
-</form>
+<div class="container py-4">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="page-section">
+				<h1 class="mb-4">
+					<i class="fas fa-boxes me-2"></i>Manage Inventory
+				</h1>
 
-<h2>Existing Inventory</h2>
-<ul>
-	{% for item in inventory %}
-	<li>
-		{{ item.item_name }} - Quantity: {{ item.quantity }}
-		<a href="{{ url_for('admin.edit_inventory', id=item.id) }}">Edit</a>
-		<form
-			method="POST"
-			action="{{ url_for('admin.delete_inventory', id=item.id) }}"
-			style="display: inline"
-		>
-			<button type="submit" class="btn btn-danger">Delete</button>
-		</form>
-	</li>
-	{% endfor %}
-</ul>
+				<div class="card shadow-sm mb-4">
+					<div class="card-header bg-primary text-white">
+						<h2 class="h5 mb-0">
+							<i class="fas fa-plus me-2"></i>Add/Update Item
+						</h2>
+					</div>
+					<div class="card-body">
+						<form
+							method="POST"
+							action="{{ url_for('admin.manage_inventory') }}"
+						>
+							{{ form.hidden_tag() }}
+							<div class="row g-3">
+								<div class="col-md-6">
+									{{ form.item_name.label(class="form-label")
+									}} {{ form.item_name(class="form-control")
+									}}
+								</div>
+								<div class="col-md-6">
+									{{ form.quantity.label(class="form-label")
+									}} {{ form.quantity(class="form-control") }}
+								</div>
+								<div class="col-12">
+									{{ form.submit(class="btn btn-primary") }}
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+
+				<div class="card shadow-sm">
+					<div class="card-header bg-secondary text-white">
+						<h2 class="h5 mb-0">
+							<i class="fas fa-list me-2"></i>Current Inventory
+						</h2>
+					</div>
+					<div class="card-body">
+						<div class="table-responsive">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Item Name</th>
+										<th>Quantity</th>
+										<th>Status</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for item in inventory %}
+									<tr>
+										<td>{{ item.item_name }}</td>
+										<td>{{ item.quantity }}</td>
+										<td>
+											{% if item.quantity < 10 %}
+											<span class="badge bg-danger"
+												>Low Stock</span
+											>
+											{% elif item.quantity < 30 %}
+											<span class="badge bg-warning"
+												>Medium Stock</span
+											>
+											{% else %}
+											<span class="badge bg-success"
+												>Well Stocked</span
+											>
+											{% endif %}
+										</td>
+										<td>
+											<div class="btn-group" role="group">
+												<a
+													href="{{ url_for('admin.edit_inventory', id=item.id) }}"
+													class="btn btn-sm btn-primary"
+												>
+													<i class="fas fa-edit"></i>
+												</a>
+												<form
+													action="{{ url_for('admin.delete_inventory', id=item.id) }}"
+													method="POST"
+													class="d-inline"
+													onsubmit="return confirm('Are you sure you want to delete this item?');"
+												>
+													<button
+														type="submit"
+														class="btn btn-sm btn-danger"
+													>
+														<i
+															class="fas fa-trash"
+														></i>
+													</button>
+												</form>
+											</div>
+										</td>
+									</tr>
+									{% else %}
+									<tr>
+										<td
+											colspan="4"
+											class="text-center text-muted"
+										>
+											No inventory items found
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock %}

@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from models import User, db, Pricing, Inventory
+from models import User, db, Pricing, Inventory, Appointment
 from forms import AddDoctorForm, AddStaffForm, ResourceForm, PricingForm, InventoryForm
+from datetime import datetime
 
 bp = Blueprint('admin', __name__)
 
@@ -11,14 +12,69 @@ def admin_dashboard():
     if current_user.role != 'admin':
         return "You are not authorized to access this page."
 
+    # Basic statistics
     total_patients = User.query.filter_by(role='patient').count()
     total_doctors = User.query.filter_by(role='doctor').count()
     total_staff = User.query.filter(User.role.in_(['staff', 'nurse'])).count()
-    available_resources = "To be implemented"
+    total_appointments = Appointment.query.count()
 
-    return render_template('admin/dashboard.html', total_patients=total_patients,
-                           total_doctors=total_doctors, total_staff=total_staff,
-                           available_resources=available_resources)
+    # Today's appointments
+    today = datetime.now().date()
+    todays_appointments = Appointment.query.filter_by(appointment_date=today).all()
+
+    # Low stock items (items with quantity less than 10)
+    low_stock_items = Inventory.query.filter(Inventory.quantity < 10).all()
+
+    # Department statistics (grouped by specialization)
+    department_stats = []
+    specializations = db.session.query(User.specialization).filter(
+        User.role == 'doctor', 
+        User.specialization != None
+    ).distinct().all()
+
+    for spec in specializations:
+        if spec[0]:  # Check if specialization is not None
+            doctors_count = User.query.filter_by(role='doctor', specialization=spec[0]).count()
+            # Count patients with appointments to doctors in this specialization
+            patients_count = db.session.query(Appointment).join(
+                User, Appointment.doctor_id == User.id
+            ).filter(User.specialization == spec[0]).distinct().count()
+            department_stats.append({
+                'name': spec[0],
+                'doctors': doctors_count,
+                'patients': patients_count
+            })
+
+    # Recent activities (last 10 appointments/registrations)
+    recent_activities = []
+    recent_appointments = Appointment.query.order_by(Appointment.id.desc()).limit(5).all()
+    recent_registrations = User.query.filter_by(role='patient').order_by(User.id.desc()).limit(5).all()
+
+    for appt in recent_appointments:
+        recent_activities.append({
+            'title': 'New Appointment',
+            'description': f'Appointment scheduled for {appt.patient.name} with Dr. {appt.doctor.name}',
+            'time': appt.appointment_date.strftime('%Y-%m-%d')
+        })
+
+    for reg in recent_registrations:
+        recent_activities.append({
+            'title': 'New Patient Registration',
+            'description': f'New patient registered: {reg.name}',
+            'time': 'Recently'
+        })
+
+    recent_activities = sorted(recent_activities, key=lambda x: x['time'], reverse=True)[:10]
+
+    return render_template('admin/dashboard.html',
+                         total_patients=total_patients,
+                         total_doctors=total_doctors,
+                         total_staff=total_staff,
+                         total_appointments=total_appointments,
+                         todays_appointments=todays_appointments,
+                         low_stock_items=low_stock_items,
+                         department_stats=department_stats,
+                         recent_activities=recent_activities)
 
 @bp.route('/admin/add_doctor', methods=['GET', 'POST'])
 @login_required

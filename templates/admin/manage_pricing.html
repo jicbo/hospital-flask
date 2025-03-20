@@ -1,30 +1,97 @@
 {% extends "base.html" %} {% block content %}
-<h2>Manage Pricing</h2>
-<form method="POST" action="{{ url_for('admin.manage_pricing') }}">
-	{{ form.hidden_tag() }}
-	<div class="form-group">
-		{{ form.service.label }} {{ form.service(class="form-control") }}
-	</div>
-	<div class="form-group">
-		{{ form.price.label }} {{ form.price(class="form-control") }}
-	</div>
-	<div class="form-group">{{ form.submit(class="btn btn-primary") }}</div>
-</form>
+<div class="container py-4">
+	<div class="page-section">
+		<h1 class="mb-4">
+			<i class="fas fa-dollar-sign me-2"></i>Manage Pricing
+		</h1>
 
-<h3>Existing Pricing</h3>
-<ul>
-	{% for pricing in pricing_list %}
-	<li>
-		{{ pricing.service }} - Price: {{ pricing.price }}
-		<a href="{{ url_for('admin.edit_pricing', id=pricing.id) }}">Edit</a>
-		<form
-			method="POST"
-			action="{{ url_for('admin.delete_pricing', id=pricing.id) }}"
-			style="display: inline"
-		>
-			<button type="submit" class="btn btn-danger">Delete</button>
-		</form>
-	</li>
-	{% endfor %}
-</ul>
+		<div class="card shadow-sm mb-4">
+			<div class="card-header bg-primary text-white">
+				<h2 class="h5 mb-0">
+					<i class="fas fa-plus me-2"></i>Add New Service Price
+				</h2>
+			</div>
+			<div class="card-body">
+				<form
+					method="POST"
+					action="{{ url_for('admin.manage_pricing') }}"
+				>
+					{{ form.hidden_tag() }}
+					<div class="row g-3">
+						<div class="col-md-6">
+							{{ form.service.label(class="form-label") }} {{
+							form.service(class="form-control") }}
+						</div>
+						<div class="col-md-6">
+							{{ form.price.label(class="form-label") }} {{
+							form.price(class="form-control") }}
+						</div>
+						<div class="col-12">
+							{{ form.submit(class="btn btn-primary") }}
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<div class="card shadow-sm">
+			<div class="card-header bg-secondary text-white">
+				<h2 class="h5 mb-0">
+					<i class="fas fa-list me-2"></i>Current Pricing
+				</h2>
+			</div>
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Service</th>
+								<th>Price</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for pricing in pricing_list %}
+							<tr>
+								<td>{{ pricing.service }}</td>
+								<td>${{ pricing.price }}</td>
+								<td>
+									<div class="btn-group" role="group">
+										<a
+											href="{{ url_for('admin.edit_pricing', id=pricing.id) }}"
+											class="btn btn-sm btn-primary"
+										>
+											<i class="fas fa-edit"></i> Edit
+										</a>
+										<form
+											action="{{ url_for('admin.delete_pricing', id=pricing.id) }}"
+											method="POST"
+											class="d-inline"
+											onsubmit="return confirm('Are you sure you want to delete this pricing?');"
+										>
+											<button
+												type="submit"
+												class="btn btn-sm btn-danger"
+											>
+												<i class="fas fa-trash"></i>
+												Delete
+											</button>
+										</form>
+									</div>
+								</td>
+							</tr>
+							{% else %}
+							<tr>
+								<td colspan="3" class="text-center text-muted">
+									No pricing information available
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock %}
