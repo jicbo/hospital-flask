@@ -1,37 +1,15 @@
 {
-	"version": 2,
 	"builds": [
 		{
-			"src": "wsgi.py",
+			"src": "app.py",
 			"use": "@vercel/python",
-			"config": {
-				"maxLambdaSize": "15mb",
-				"requirements": "requirements.txt"
-			}
+			"config": { "requirements": "requirements.txt" }
 		}
 	],
 	"routes": [
 		{
 			"src": "/(.*)",
-			"dest": "wsgi.py"
+			"dest": "app.py"
 		}
-	],
-	"env": {
-		"PYTHON_VERSION": "3.12",
-		"FLASK_APP": "wsgi.py",
-		"FLASK_ENV": "production",
-		"SQLALCHEMY_TRACK_MODIFICATIONS": "False",
-		"SQLALCHEMY_ECHO": "False"
-	},
-	"functions": {
-		"api/*.py": {
-			"memory": 1024,
-			"maxDuration": 10
-		}
-	},
-	"git": {
-		"deploymentEnabled": {
-			"main": true
-		}
-	}
+	]
 }

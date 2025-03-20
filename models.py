@@ -6,10 +6,10 @@ from datetime import datetime
 db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
-    __tablename__ = 'user'  # Changed back to original
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
-    password_hash = db.Column(db.String(512), nullable=False)  # Increased from 128 to 512
+    password_hash = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(20), default='patient', nullable=False)  # role: admin, doctor, patient
     appointments = db.relationship('Appointment', backref='doctor', lazy=True, foreign_keys='Appointment.doctor_id')  # Specify foreign key
     medical_records = db.relationship('MedicalRecord', backref='patient', lazy=True)
@@ -27,12 +27,12 @@ class User(UserMixin, db.Model):
         return f'<User {self.name}>'
 
 class Appointment(db.Model):
-    __tablename__ = 'appointment'  # Changed back to original
+    __tablename__ = 'appointment'
     id = db.Column(db.Integer, primary_key=True)
     appointment_date = db.Column(db.Date, nullable=False)
     appointment_time = db.Column(db.Time, nullable=False)
-    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Updated foreign key
-    doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Updated foreign key
+    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     patient = db.relationship('User', foreign_keys=[patient_id], backref='patient_appointments')
 
     @staticmethod
@@ -44,19 +44,19 @@ class Appointment(db.Model):
         return f'<Appointment {self.id}>'
 
 class MedicalRecord(db.Model):
-    __tablename__ = 'medical_record'  # Changed back to original
+    __tablename__ = 'medical_record'
     id = db.Column(db.Integer, primary_key=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Updated foreign key
+    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     report = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
         return f'<MedicalRecord {self.id}>'
 
 class Prescription(db.Model):
-    __tablename__ = 'prescription'  # Changed back to original
+    __tablename__ = 'prescription'
     id = db.Column(db.Integer, primary_key=True)
-    doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Updated foreign key
-    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Updated foreign key
+    doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     medication = db.Column(db.String(100), nullable=False)
     dosage = db.Column(db.String(100), nullable=False)

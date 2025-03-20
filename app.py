@@ -1,48 +1,40 @@
-from flask import Flask, render_template, redirect, url_for, jsonify
+from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from datetime import datetime
 import os
 import logging
 from models import User, db  # Import the models and db
-from sqlalchemy import exc
 
 from controllers.admin import bp as admin_bp
 from controllers.patient import bp as patient_bp
 from controllers.doctor import bp as doctor_bp
 from controllers.auth import bp as auth_bp
 
-# Initialize Flask app and config first
 app = Flask(__name__)
-app.config.from_object('config.Config')
+app.config.from_object('config.Config')  # Load configuration from config.py
+
+# Initialize the database with the app
+db.init_app(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize database
-db.init_app(app)
-
-# Initialize login manager
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'auth.login'
+# User loader callback
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User, int(user_id))
 
 # Register blueprints
 app.register_blueprint(admin_bp)
 app.register_blueprint(patient_bp)
 app.register_blueprint(doctor_bp)
 app.register_blueprint(auth_bp)
-
-# Minimal database initialization
-with app.app_context():
-    try:
-        db.create_all()
-        admin = User.query.filter_by(email='admin@example.com').first()
-        if not admin:
-            create_test_users()
-    except Exception as e:
-        logger.error(f"Database initialization error: {e}")
 
 # Routes
 @app.route('/')
@@ -51,20 +43,6 @@ def index():
         if current_user.role == 'patient':
             return redirect(url_for('patient.profile'))
     return render_template('index.html')
-
-# Error handlers
-@app.errorhandler(500)
-def internal_error(error):
-    db.session.rollback()
-    app.logger.error(f'Server Error: {error}')
-    return jsonify(error=str(error)), 500
-
-@app.errorhandler(Exception)
-def handle_exception(e):
-    app.logger.error(f'Unhandled Exception: {str(e)}')
-    if isinstance(e, exc.SQLAlchemyError):
-        db.session.rollback()
-    return jsonify(error=str(e)), 500
 
 def create_test_users():
     try:
@@ -133,4 +111,10 @@ def create_test_users():
         logger.error(f"Error creating test users: {e}")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    with app.app_context():
+        try:
+            db.create_all()  # Create the database schema
+            create_test_users()
+            app.run(debug=True)
+        except Exception as e:
+            logger.error(f"Error during app initialization: {e}")
