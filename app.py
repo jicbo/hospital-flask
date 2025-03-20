@@ -34,30 +34,38 @@ app.register_blueprint(patient_bp)
 app.register_blueprint(doctor_bp)
 app.register_blueprint(auth_bp)
 
-# Lazy database initialization
-def init_db():
+def check_and_create_tables():
     try:
-        db.create_all()
-        return True
+        inspector = db.inspect(db.engine)
+        existing_tables = inspector.get_table_names()
+        required_tables = ['users', 'appointments', 'medical_records', 'prescriptions', 'inventory']
+        
+        missing_tables = [table for table in required_tables if table not in existing_tables]
+        
+        if missing_tables:
+            logger.info(f"Missing tables: {missing_tables}")
+            logger.info("Creating missing tables...")
+            db.create_all()
+            return True
+        else:
+            logger.info("All required tables exist")
+            return False
     except Exception as e:
-        logger.error(f"Database initialization error: {e}")
+        logger.error(f"Error checking tables: {e}")
         return False
 
-@app.before_first_request
-def initialize_app():
-    with app.app_context():
-        try:
-            # Only create tables if they don't exist
-            inspector = db.inspect(db.engine)
-            tables_exist = inspector.get_table_names()
-            if not tables_exist:
-                init_db()
-                # Create admin user if it doesn't exist
-                admin = User.query.filter_by(email='admin@example.com').first()
-                if not admin:
-                    create_test_users()
-        except Exception as e:
-            logger.error(f"Initialization error: {e}")
+# Initialize the application
+with app.app_context():
+    try:
+        tables_created = check_and_create_tables()
+        if tables_created:
+            admin = User.query.filter_by(email='admin@example.com').first()
+            if not admin:
+                create_test_users()
+    except Exception as e:
+        logger.error(f"Database initialization error: {e}")
+        if app.debug:
+            raise
 
 # Routes
 @app.route('/')
