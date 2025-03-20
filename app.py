@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # Initialize database
 db.init_app(app)
 
-# Initialize login manager after database
+# Initialize login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
@@ -34,38 +34,15 @@ app.register_blueprint(patient_bp)
 app.register_blueprint(doctor_bp)
 app.register_blueprint(auth_bp)
 
-def check_and_create_tables():
-    try:
-        inspector = db.inspect(db.engine)
-        existing_tables = inspector.get_table_names()
-        required_tables = ['users', 'appointments', 'medical_records', 'prescriptions', 'inventory']
-        
-        missing_tables = [table for table in required_tables if table not in existing_tables]
-        
-        if missing_tables:
-            logger.info(f"Missing tables: {missing_tables}")
-            logger.info("Creating missing tables...")
-            db.create_all()
-            return True
-        else:
-            logger.info("All required tables exist")
-            return False
-    except Exception as e:
-        logger.error(f"Error checking tables: {e}")
-        return False
-
-# Initialize the application
+# Minimal database initialization
 with app.app_context():
     try:
-        tables_created = check_and_create_tables()
-        if tables_created:
-            admin = User.query.filter_by(email='admin@example.com').first()
-            if not admin:
-                create_test_users()
+        db.create_all()
+        admin = User.query.filter_by(email='admin@example.com').first()
+        if not admin:
+            create_test_users()
     except Exception as e:
         logger.error(f"Database initialization error: {e}")
-        if app.debug:
-            raise
 
 # Routes
 @app.route('/')

@@ -16,13 +16,13 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_size': 1,
-        'pool_recycle': 120,  # Reduced from 200
-        'pool_timeout': 10,   # Reduced from 30
+        'pool_recycle': 60,  # Reduced from 200
+        'pool_timeout': 5,   # Reduced from 30
         'max_overflow': 0,
         'pool_pre_ping': True,
         'connect_args': {
             'sslmode': 'require' if os.environ.get('POSTGRES_URL') else None,
-            'connect_timeout': 10,  # Reduced from 30
+            'connect_timeout': 5,  # Reduced from 30
             'statement_timeout': 10000,  # 10 seconds
             'command_timeout': 10  # 10 seconds
         }
