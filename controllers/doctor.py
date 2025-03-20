@@ -101,7 +101,7 @@ def issue_prescription():
 
 @bp.route('/doctor/patient_profile/<int:patient_id>', methods=['GET'])
 def patient_profile(patient_id):
-    patient = User.query.get_or_404(patient_id)  # Change Patient to User
+    patient = User.query.get_or_404(patient_id)
     appointments = Appointment.query.filter_by(patient_id=patient_id).all()
     medical_records = MedicalRecord.query.filter_by(patient_id=patient_id).all()
     prescriptions = Prescription.query.filter_by(patient_id=patient_id).all()

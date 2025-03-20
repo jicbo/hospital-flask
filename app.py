@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from datetime import datetime
 import os
-from models import User, db  # Import the models and db
+from models import User, db
 
 from controllers.admin import bp as admin_bp
 from controllers.patient import bp as patient_bp
@@ -11,27 +11,23 @@ from controllers.doctor import bp as doctor_bp
 from controllers.auth import bp as auth_bp
 
 app = Flask(__name__)
-app.config.from_object('config.Config')  # Load configuration from config.py
+app.config.from_object('config.Config')
 
-# Initialize the database with the app
 db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 
-# User loader callback
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
-# Register blueprints
 app.register_blueprint(admin_bp)
 app.register_blueprint(patient_bp)
 app.register_blueprint(doctor_bp)
 app.register_blueprint(auth_bp)
 
-# Routes
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -41,7 +37,6 @@ def index():
 
 def create_test_users():
     try:
-        # Create admin user
         if not User.query.filter_by(email='admin@example.com').first():
             admin = User(
                 email='admin@example.com',
@@ -51,7 +46,6 @@ def create_test_users():
             admin.set_password('passwordpassword')
             db.session.add(admin)
 
-        # Create test doctor
         if not User.query.filter_by(email='milica@gmail.com').first():
             doctor = User(
                 email='milica@gmail.com',
@@ -62,7 +56,6 @@ def create_test_users():
             doctor.set_password("be35v+'h=KjnSn")
             db.session.add(doctor)
 
-        # Create test patient
         if not User.query.filter_by(email='danijela@gmail.com').first():
             patient = User(
                 email='danijela@gmail.com',
@@ -72,7 +65,6 @@ def create_test_users():
             patient.set_password('X#Kfv8$}Vj$#]]:')
             db.session.add(patient)
 
-        # Create additional test patients
         if not User.query.filter_by(email='jovan@gmail.com').first():
             patient = User(
                 email='jovan@gmail.com',
@@ -107,7 +99,7 @@ def create_test_users():
 if __name__ == '__main__':
     with app.app_context():
         try:
-            db.create_all()  # Create the database schema
+            db.create_all()
             create_test_users()
             app.run(debug=True)
         except Exception as e:

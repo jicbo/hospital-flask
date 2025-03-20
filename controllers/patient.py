@@ -26,18 +26,15 @@ def book_appointment():
     form.doctor.choices = [(doctor.id, f"{doctor.name} ({doctor.specialization})") 
                           for doctor in User.query.filter_by(role='doctor').all()]
     
-    # Get date and doctor from form data or request
     selected_date = request.form.get('date') or form.date.data
     selected_doctor = request.form.get('doctor') or form.doctor.data
     
     if selected_date and selected_doctor:
         try:
-            # Convert string date to date object if needed
             if isinstance(selected_date, str):
                 selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
             selected_doctor = int(selected_doctor)
             
-            # Set the form data
             form.date.data = selected_date
             form.doctor.data = selected_doctor
             
@@ -52,7 +49,6 @@ def book_appointment():
         except (ValueError, TypeError):
             form.time.choices = []
     
-    # Only process final submission if time is selected
     if form.validate_on_submit() and form.time.data and 'submit' in request.form:
         appointment_time = datetime.strptime(form.time.data, '%H:%M').time()
         appointment = Appointment(
@@ -77,14 +73,12 @@ def book_doctor_appointment(doctor_id):
     form = AppointmentForm()
     doctor = db.session.get(User, doctor_id)
     form.doctor.choices = [(doctor_id, f"{doctor.name} ({doctor.specialization})")]
-    form.doctor.data = doctor_id  # Pre-select the doctor
+    form.doctor.data = doctor_id
     
-    # Get date from form data or request
     selected_date = request.form.get('date') or form.date.data
     
     if selected_date:
         try:
-            # Convert string date to date object if needed
             if isinstance(selected_date, str):
                 selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
             

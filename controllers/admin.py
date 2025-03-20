@@ -12,20 +12,16 @@ def admin_dashboard():
     if current_user.role != 'admin':
         return "You are not authorized to access this page."
 
-    # Basic statistics
     total_patients = User.query.filter_by(role='patient').count()
     total_doctors = User.query.filter_by(role='doctor').count()
     total_staff = User.query.filter(User.role.in_(['staff', 'nurse'])).count()
     total_appointments = Appointment.query.count()
 
-    # Today's appointments
     today = datetime.now().date()
     todays_appointments = Appointment.query.filter_by(appointment_date=today).all()
 
-    # Low stock items (items with quantity less than 10)
     low_stock_items = Inventory.query.filter(Inventory.quantity < 10).all()
 
-    # Department statistics (grouped by specialization)
     department_stats = []
     specializations = db.session.query(User.specialization).filter(
         User.role == 'doctor', 
@@ -33,9 +29,8 @@ def admin_dashboard():
     ).distinct().all()
 
     for spec in specializations:
-        if spec[0]:  # Check if specialization is not None
+        if spec[0]:
             doctors_count = User.query.filter_by(role='doctor', specialization=spec[0]).count()
-            # Count patients with appointments to doctors in this specialization
             patients_count = db.session.query(Appointment).join(
                 User, Appointment.doctor_id == User.id
             ).filter(User.specialization == spec[0]).distinct().count()
@@ -45,7 +40,6 @@ def admin_dashboard():
                 'patients': patients_count
             })
 
-    # Recent activities (last 10 appointments/registrations)
     recent_activities = []
     recent_appointments = Appointment.query.order_by(Appointment.id.desc()).limit(5).all()
     recent_registrations = User.query.filter_by(role='patient').order_by(User.id.desc()).limit(5).all()

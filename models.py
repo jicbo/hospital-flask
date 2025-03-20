@@ -10,12 +10,12 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(20), default='patient', nullable=False)  # role: admin, doctor, patient
-    appointments = db.relationship('Appointment', backref='doctor', lazy=True, foreign_keys='Appointment.doctor_id')  # Specify foreign key
+    role = db.Column(db.String(20), default='patient', nullable=False)
+    appointments = db.relationship('Appointment', backref='doctor', lazy=True, foreign_keys='Appointment.doctor_id')
     medical_records = db.relationship('MedicalRecord', backref='patient', lazy=True)
     name = db.Column(db.String(64), index=True)
     specialization = db.Column(db.String(100), nullable=True)
-    position = db.Column(db.String(100), nullable=True)  # Staff
+    position = db.Column(db.String(100), nullable=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
