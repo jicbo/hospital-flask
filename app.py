@@ -31,9 +31,13 @@ app.register_blueprint(auth_bp)
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        if current_user.role == 'patient':
+        if current_user.role == 'admin':
+            return redirect(url_for('admin.admin_dashboard'))
+        elif current_user.role == 'doctor':
+            return redirect(url_for('doctor.doctor_dashboard'))
+        elif current_user.role == 'patient':
             return redirect(url_for('patient.profile'))
-    return render_template('index.html')
+    return redirect(url_for('auth.login'))
 
 def create_test_users():
     try:
@@ -49,7 +53,7 @@ def create_test_users():
         if not User.query.filter_by(email='milica@gmail.com').first():
             doctor = User(
                 email='milica@gmail.com',
-                name='Milica',
+                name='Milica Petrovic',
                 role='doctor',
                 specialization='General Practitioner'
             )
@@ -59,7 +63,7 @@ def create_test_users():
         if not User.query.filter_by(email='danijela@gmail.com').first():
             patient = User(
                 email='danijela@gmail.com',
-                name='Danijela',
+                name='Danijela Mikic',
                 role='patient'
             )
             patient.set_password('X#Kfv8$}Vj$#]]:')
@@ -68,7 +72,7 @@ def create_test_users():
         if not User.query.filter_by(email='jovan@gmail.com').first():
             patient = User(
                 email='jovan@gmail.com',
-                name='Jovan',
+                name='Jovan Jovanovic',
                 role='patient'
             )
             patient.set_password('password123')
@@ -77,7 +81,7 @@ def create_test_users():
         if not User.query.filter_by(email='ana@gmail.com').first():
             patient = User(
                 email='ana@gmail.com',
-                name='Ana',
+                name='Ana Andric',
                 role='patient'
             )
             patient.set_password('password123')
