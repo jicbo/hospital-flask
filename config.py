@@ -17,12 +17,13 @@ class Config:
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_size': 5,
-        'pool_recycle': 280,
-        'pool_timeout': 20,
-        'max_overflow': 2,
-        'pool_pre_ping': True,  # Add connection health check
+        'pool_size': 1,  # Reduced for Vercel's limitations
+        'pool_recycle': 200,
+        'pool_timeout': 30,
+        'max_overflow': 0,  # Disabled overflow for stability
+        'pool_pre_ping': True,
         'connect_args': {
-            'sslmode': 'require' if os.environ.get('POSTGRES_URL') else None  # Enable SSL for Neon
+            'sslmode': 'require' if os.environ.get('POSTGRES_URL') else None,
+            'connect_timeout': 30  # Add connection timeout
         }
     }

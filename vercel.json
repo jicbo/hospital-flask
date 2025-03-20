@@ -18,7 +18,8 @@
 		"FLASK_APP": "wsgi.py",
 		"FLASK_ENV": "production",
 		"SQLALCHEMY_TRACK_MODIFICATIONS": "False",
-		"SQLALCHEMY_ECHO": "True"
+		"SQLALCHEMY_ECHO": "True",
+		"SQLALCHEMY_ENGINE_OPTIONS": "{\"pool_size\": 1, \"max_overflow\": 0}"
 	},
 	"git": {
 		"deploymentEnabled": {

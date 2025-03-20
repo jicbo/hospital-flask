@@ -122,18 +122,27 @@ def create_test_users():
     except Exception as e:
         logger.error(f"Error creating test users: {e}")
 
-# Initialize the database with the app
+# Initialize the database without dropping tables in production
 try:
     db.init_app(app)
     with app.app_context():
-        # Drop all tables and recreate them
-        db.drop_all()
-        db.create_all()
-        create_test_users()
-        logger.info("Database initialized successfully")
+        try:
+            # Only create tables if they don't exist
+            db.create_all()
+            # Check if admin user exists before creating test users
+            admin = User.query.filter_by(email='admin@example.com').first()
+            if not admin:
+                create_test_users()
+            logger.info("Database initialized successfully")
+        except Exception as e:
+            logger.error(f"Database setup error: {e}")
+            # Don't raise the exception in production
+            if app.debug:
+                raise
 except Exception as e:
     logger.error(f"Database initialization error: {e}")
-    raise
+    if app.debug:
+        raise
 
 if __name__ == '__main__':
     app.run(debug=True)
