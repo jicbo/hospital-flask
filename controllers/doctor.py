@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from models import Appointment, MedicalRecord, Prescription, User, db
-from forms import MedicalRecordForm, DoctorSearchForm, PrescriptionForm, DoctorAppointmentForm, EditPrescriptionForm
+from forms import MedicalRecordForm, DoctorSearchForm, PrescriptionForm, EditPrescriptionForm
 from datetime import time, datetime
 
 bp = Blueprint('doctor', __name__)
@@ -67,9 +67,12 @@ def search_patients():
         if search_by == 'name':
             patients = User.query.filter(User.name.ilike(f'%{search_term}%'), User.role == 'patient').all()
         elif search_by == 'id':
-            patients = User.query.filter(User.id == search_term, User.role == 'patient').all()
-        elif search_by == 'diagnosis':
-            patients = User.query.join(MedicalRecord).filter(MedicalRecord.report.ilike(f'%{search_term}%'), User.role == 'patient').all()
+            try:
+                patient_id = int(search_term)
+                patients = User.query.filter(User.id == patient_id, User.role == 'patient').all()
+            except ValueError:
+                flash('Please enter a valid ID number', 'error')
+                patients = []
     return render_template('doctor/search_patients.html', form=form, patients=patients)
 
 @bp.route('/doctor/issue_prescription', methods=['GET', 'POST'])
@@ -103,38 +106,6 @@ def patient_profile(patient_id):
     medical_records = MedicalRecord.query.filter_by(patient_id=patient_id).all()
     prescriptions = Prescription.query.filter_by(patient_id=patient_id).all()
     return render_template('doctor/patient_profile.html', patient=patient, appointments=appointments, medical_records=medical_records, prescriptions=prescriptions)
-
-@bp.route('/doctor/schedule_appointment', methods=['GET', 'POST'])
-@login_required
-def schedule_appointment():
-    if current_user.role != 'doctor':
-        return "You are not authorized to access this page."
-    form = DoctorAppointmentForm()
-    form.patient.choices = [(patient.id, f"{patient.name}") for patient in User.query.filter_by(role='patient').all()]
-    patient_id = request.args.get('patient_id', type=int)
-    if patient_id:
-        form.patient.data = patient_id
-    if form.validate_on_submit():
-        appointment_date = form.date.data
-        appointment_time = time(hour=int(form.hours.data), minute=int(form.minutes.data))
-        existing_appointment = Appointment.query.filter_by(doctor_id=current_user.id, appointment_date=appointment_date, appointment_time=appointment_time).first()
-        if existing_appointment:
-            flash('This time slot is already taken. Please choose a different time.', 'danger')
-        else:
-            appointment = Appointment(
-                appointment_date=appointment_date,
-                appointment_time=appointment_time,
-                patient_id=form.patient.data,
-                doctor_id=current_user.id,
-                notes=form.notes.data
-            )
-            db.session.add(appointment)
-            db.session.commit()
-            flash('Appointment scheduled successfully!', 'success')
-            return redirect(url_for('doctor.doctor_dashboard'))
-    elif request.method == 'POST':
-        print(form.errors)
-    return render_template('doctor/schedule_appointment.html', form=form)
 
 @bp.route('/doctor/edit_medical_record/<int:record_id>', methods=['GET', 'POST'])
 @login_required

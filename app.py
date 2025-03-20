@@ -1,6 +1,6 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from datetime import datetime
 import os
 import logging
@@ -39,6 +39,9 @@ app.register_blueprint(auth_bp)
 # Routes
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        if current_user.role == 'patient':
+            return redirect(url_for('patient.profile'))
     return render_template('index.html')
 
 def create_test_users():

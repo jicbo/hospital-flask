@@ -1,49 +1,95 @@
-{% extends 'base.html' %} {% block title %}Book Appointment{% endblock %} {%
-block content %}
-<h1>Book Appointment</h1>
-<form method="POST" action="{{ url_for('patient.book_appointment') }}">
-	{{ form.hidden_tag() }}
-	<div class="form-group">
-		{{ form.date.label }}
-		<input
-			type="date"
-			name="date"
-			class="form-control"
-			value="{{ form.date.data|default('') }}"
-		/>
-	</div>
-	<div class="form-group">
-		{{ form.hours.label }}
-		<select name="hours" class="form-control">
-			{% for hour in range(8, 21) %}
-			<option value="{{ hour }}" {% if form.hours.data == hour %}selected{% endif %}>{{ hour }}</option>
-			{% endfor %}
-		</select>
-	</div>
-	<div class="form-group">
-		{{ form.minutes.label }}
-		<select name="minutes" class="form-control">
-			{% for minute in range(0, 60, 15) %}
-			<option value="{{ minute }}" {% if form.minutes.data == minute %}selected{% endif %}>{{ minute }}</option>
-			{% endfor %}
-		</select>
-	</div>
-	<div class="form-group">
-		{{ form.doctor.label }} {{ form.doctor(class="form-control") }}
-	</div>
-	<div class="form-group">
-		{{ form.notes.label }} {{ form.notes(class="form-control") }}
-	</div>
-	{{ form.submit(class="btn btn-primary") }}
-</form>
+{% extends 'base.html' %}
+{% block title %}Book Appointment{% endblock %}
 
-<h2>Upcoming Appointments</h2>
-<ul>
-	{% for appointment in current_user.appointments %}
-	<li>
-		{{ appointment.appointment_time }} - Doctor: {{ appointment.doctor.name
-		}}
-	</li>
-	{% endfor %}
-</ul>
+<style>
+    select#time:disabled {
+        background-color: #e9ecef !important;
+        color: #495057 !important;
+        border-color: #ced4da !important;
+    }
+</style>
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="page-section">
+            <h1 class="mb-4"><i class="fas fa-calendar-plus me-2"></i>Book Appointment</h1>
+            <form method="POST" action="{{ url_for('patient.book_appointment') }}" id="appointmentForm">
+                {{ form.hidden_tag() }}
+                <div class="form-group mb-3">
+                    {{ form.doctor.label(class="form-label") }}
+                    <select name="doctor" id="doctor" class="form-control form-control-lg">
+                        <option value="">Select a doctor</option>
+                        {% for value, label in form.doctor.choices %}
+                            <option value="{{ value }}" {% if form.doctor.data|string == value|string %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.date.label(class="form-label") }}
+                    <input type="date" name="date" id="date" class="form-control form-control-lg"
+                           value="{{ form.date.data|default('') }}"
+                           min="{{ (now + timedelta(days=1)).strftime('%Y-%m-%d') }}">
+                </div>
+                <div class="form-group mb-4">
+                    {{ form.time.label(class="form-label") }}
+                    <select name="time" id="time" class="form-control form-control-lg text-dark" disabled>
+                        {% if form.time.choices %}
+                            {% for value, label in form.time.choices %}
+                                <option value="{{ value }}" {% if form.time.data == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="">Select date and doctor first</option>
+                        {% endif %}
+                    </select>
+                </div>
+                {{ form.submit(class="btn btn-primary btn-lg w-100") }}
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('doctor').addEventListener('change', updateAvailableTimes);
+document.getElementById('date').addEventListener('change', updateAvailableTimes);
+
+function updateAvailableTimes() {
+    const doctor = document.getElementById('doctor').value;
+    const date = document.getElementById('date').value;
+    const timeSelect = document.getElementById('time');
+    
+    if (doctor && date) {
+        // Create a FormData object with the current form data
+        const formData = new FormData(document.getElementById('appointmentForm'));
+        
+        // Submit the form without the submit button
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Create a temporary element to parse the HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Get the new time select options
+            const newTimeSelect = doc.getElementById('time');
+            
+            // Update the current time select with new options
+            timeSelect.innerHTML = newTimeSelect.innerHTML;
+            timeSelect.disabled = false;
+            timeSelect.classList.remove('text-dark');
+        });
+    } else {
+        timeSelect.innerHTML = '<option value="">Select date and doctor first</option>';
+        timeSelect.disabled = true;
+        timeSelect.classList.add('text-dark');
+    }
+}
+</script>
 {% endblock %}

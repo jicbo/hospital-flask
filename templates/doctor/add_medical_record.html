@@ -1,11 +1,23 @@
 {% extends 'base.html' %} {% block content %}
-<h1>Add Medical Record</h1>
-<p>Adding medical record for Patient ID: {{ patient_id }}</p>
-<form method="POST">
-	{{ form.hidden_tag() }}
-	<div class="form-group">
-		{{ form.report.label }} {{ form.report(class="form-control") }}
+<div class="row">
+	<div class="col-md-8 mx-auto">
+		<div class="page-section">
+			<h1 class="mb-4">
+				<i class="fas fa-file-medical me-2"></i>Add Medical Record
+			</h1>
+			<p class="text-muted mb-4">
+				Adding medical record for Patient ID: {{ patient_id }}
+			</p>
+			<form method="POST">
+				{{ form.hidden_tag() }}
+				<div class="mb-3">
+					{{ form.report.label(class="form-label") }} {{
+					form.report(class="form-control form-control-lg", rows="6")
+					}}
+				</div>
+				{{ form.submit(class="btn btn-primary btn-lg w-100") }}
+			</form>
+		</div>
 	</div>
-	<div class="form-group">{{ form.submit(class="btn btn-primary") }}</div>
-</form>
+</div>
 {% endblock %}

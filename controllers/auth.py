@@ -7,6 +7,13 @@ bp = Blueprint('auth', __name__)
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        if current_user.role == 'admin':
+            return redirect(url_for('admin.admin_dashboard'))
+        elif current_user.role == 'doctor':
+            return redirect(url_for('doctor.doctor_dashboard'))
+        return redirect(url_for('patient.profile'))
+
     form = RegistrationForm()
     if form.validate_on_submit():
         email = form.email.data
@@ -33,12 +40,23 @@ def register():
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        if current_user.role == 'admin':
+            return redirect(url_for('admin.admin_dashboard'))
+        elif current_user.role == 'doctor':
+            return redirect(url_for('doctor.doctor_dashboard'))
+        return redirect(url_for('patient.profile'))
+
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
+            if user.role == 'admin':
+                return redirect(url_for('admin.admin_dashboard'))
+            elif user.role == 'doctor':
+                return redirect(url_for('doctor.doctor_dashboard'))
             return redirect(next_page or url_for('index'))
         else:
             flash('Invalid email or password')

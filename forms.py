@@ -38,9 +38,7 @@ class DoctorRegistrationForm(FlaskForm):
 
 class AppointmentForm(FlaskForm):
     date = DateField('Appointment Date', format='%Y-%m-%d', validators=[DataRequired()])
-    hours = IntegerField('Hours', validators=[DataRequired(), NumberRange(min=8, max=20)])
-    minutes = IntegerField('Minutes', validators=[InputRequired(), NumberRange(min=0, max=59)])
-    notes = TextAreaField('Notes')
+    time = SelectField('Appointment Time', choices=[], validators=[DataRequired()])
     doctor = SelectField('Doctor', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Book Appointment')
 
@@ -66,8 +64,11 @@ class EditPrescriptionForm(FlaskForm):
     submit = SubmitField('Update Prescription')
 
 class DoctorSearchForm(FlaskForm):
-    search_term = StringField('Search', validators=[Optional()])
-    search_by = SelectField('Search By', choices=[('name', 'Name'), ('specialization', 'Specialization')], validators=[DataRequired()])
+    search_term = StringField('Search Term', validators=[Optional()])
+    search_by = SelectField('Search By', choices=[
+        ('id', 'Patient ID'), 
+        ('name', 'Patient Name')
+    ], validators=[DataRequired()])
     submit = SubmitField('Search')
 
 class AddDoctorForm(FlaskForm):
@@ -98,11 +99,3 @@ class InventoryForm(FlaskForm):
     item_name = StringField('Item Name', validators=[DataRequired()])
     quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=0)])
     submit = SubmitField('Update Inventory')
-
-class DoctorAppointmentForm(FlaskForm):
-    date = DateField('Appointment Date', format='%Y-%m-%d', validators=[DataRequired()])
-    hours = IntegerField('Hours', validators=[DataRequired(), NumberRange(min=8, max=20)])
-    minutes = SelectField('Minutes', choices=[(i, str(i).zfill(2)) for i in range(0, 60, 15)], validators=[DataRequired()])
-    patient = SelectField('Patient', coerce=int, validators=[DataRequired()])
-    notes = TextAreaField('Notes')
-    submit = SubmitField('Schedule Appointment')

@@ -1,9 +1,182 @@
 {% extends 'base.html' %} {% block content %}
-<h1>Admin Dashboard</h1>
-<p>Welcome, Administrator!</p>
-<h2>Hospital Statistics</h2>
-<p>Total Patients: {{ total_patients }}</p>
-<p>Total Doctors: {{ total_doctors }}</p>
-<p>Total Staff: {{ total_staff }}</p>
-<p>Available Resources: {{ available_resources }}</p>
+<div class="container py-4">
+	<div class="row mb-4">
+		<div class="col-12">
+			<div class="page-section">
+				<h1 class="mb-4">
+					<i class="fas fa-chart-line me-2"></i>Admin Dashboard
+				</h1>
+				<p class="text-muted">Welcome back, {{ current_user.name }}!</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="row mb-4">
+		<div class="col-md-3">
+			<div class="page-section text-center">
+				<i class="fas fa-users fa-3x mb-3 text-primary"></i>
+				<h3>{{ total_patients }}</h3>
+				<p class="text-muted mb-0">Total Patients</p>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="page-section text-center">
+				<i class="fas fa-user-md fa-3x mb-3 text-success"></i>
+				<h3>{{ total_doctors }}</h3>
+				<p class="text-muted mb-0">Total Doctors</p>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="page-section text-center">
+				<i class="fas fa-hospital-user fa-3x mb-3 text-info"></i>
+				<h3>{{ total_staff }}</h3>
+				<p class="text-muted mb-0">Total Staff</p>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="page-section text-center">
+				<i class="fas fa-calendar-check fa-3x mb-3 text-warning"></i>
+				<h3>{{ total_appointments }}</h3>
+				<p class="text-muted mb-0">Total Appointments</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="row mb-4">
+		<div class="col-md-6">
+			<div class="page-section">
+				<h2 class="h5 mb-3">
+					<i class="fas fa-calendar-day me-2"></i>Today's Appointments
+				</h2>
+				<div class="table-responsive">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Time</th>
+								<th>Patient</th>
+								<th>Doctor</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for appointment in todays_appointments %}
+							<tr>
+								<td>
+									{{
+									appointment.appointment_time.strftime('%H:%M')
+									}}
+								</td>
+								<td>{{ appointment.patient.name }}</td>
+								<td>{{ appointment.doctor.name }}</td>
+							</tr>
+							{% else %}
+							<tr>
+								<td colspan="3" class="text-center text-muted">
+									No appointments today
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="page-section">
+				<h2 class="h5 mb-3">
+					<i class="fas fa-clipboard-list me-2"></i>Recent Activities
+				</h2>
+				<div class="list-group">
+					{% for activity in recent_activities %}
+					<div class="list-group-item">
+						<div class="d-flex w-100 justify-content-between">
+							<h6 class="mb-1">{{ activity.title }}</h6>
+							<small class="text-muted"
+								>{{ activity.time }}</small
+							>
+						</div>
+						<p class="mb-1">{{ activity.description }}</p>
+					</div>
+					{% else %}
+					<div class="text-center text-muted p-3">
+						No recent activities
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-6">
+			<div class="page-section">
+				<h2 class="h5 mb-3">
+					<i class="fas fa-pills me-2"></i>Low Stock Inventory
+				</h2>
+				<div class="table-responsive">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Item</th>
+								<th>Quantity</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for item in low_stock_items %}
+							<tr>
+								<td>{{ item.item_name }}</td>
+								<td>{{ item.quantity }}</td>
+								<td>
+									<span class="badge bg-warning"
+										>Low Stock</span
+									>
+								</td>
+							</tr>
+							{% else %}
+							<tr>
+								<td colspan="3" class="text-center text-muted">
+									No low stock items
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="page-section">
+				<h2 class="h5 mb-3">
+					<i class="fas fa-chart-pie me-2"></i>Department Statistics
+				</h2>
+				<div class="table-responsive">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Department</th>
+								<th>Doctors</th>
+								<th>Patients</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for dept in department_stats %}
+							<tr>
+								<td>{{ dept.name }}</td>
+								<td>{{ dept.doctors }}</td>
+								<td>{{ dept.patients }}</td>
+							</tr>
+							{% else %}
+							<tr>
+								<td colspan="3" class="text-center text-muted">
+									No department statistics available
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock %}

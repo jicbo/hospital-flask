@@ -34,7 +34,11 @@ class Appointment(db.Model):
     patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     patient = db.relationship('User', foreign_keys=[patient_id], backref='patient_appointments')
-    notes = db.Column(db.Text, nullable=True)
+
+    @staticmethod
+    def get_scheduled_times(date, doctor_id):
+        appointments = Appointment.query.filter_by(appointment_date=date, doctor_id=doctor_id).all()
+        return [appointment.appointment_time for appointment in appointments]
 
     def __repr__(self):
         return f'<Appointment {self.id}>'

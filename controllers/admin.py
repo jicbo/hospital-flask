@@ -85,20 +85,6 @@ def add_staff():
 
     return render_template('admin/staff.html', form=form, staff_members=staff_members)
 
-@bp.route('/admin/manage_resources', methods=['GET', 'POST'])
-@login_required
-def manage_resources():
-    if current_user.role != 'admin':
-        return "You are not authorized to access this page."
-    form = ResourceForm()
-    if form.validate_on_submit():
-        name = form.name.data
-        quantity = form.quantity.data
-        # Logic to add resource to the database
-        flash('Resource added successfully!')
-        return redirect(url_for('admin.admin_dashboard'))
-    return render_template('admin/manage_resources.html', form=form)
-
 @bp.route('/admin/manage_pricing', methods=['GET', 'POST'])
 @login_required
 def manage_pricing():

@@ -1,58 +1,98 @@
-{% extends 'base.html' %} {% block title %}Search Patients{% endblock %} {% block content %}
-<h1>Search Patients</h1>
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <div class="form-group">
-        {{ form.search_term.label }} {{ form.search_term(class="form-control") }}
-    </div>
-    <div class="form-group">
-        {{ form.search_by.label }} {{ form.search_by(class="form-control") }}
-    </div>
-	</div>
-	{{ form.submit(class="btn btn-primary") }}
-</form>
+{% extends 'base.html' %} {% block title %}Search Patients{% endblock %} {%
+block content %}
+<div class="container py-4">
+	<div class="page-section mb-4">
+		<h1 class="mb-4"><i class="fas fa-search me-2"></i>Search Patients</h1>
 
-<h2>Search Results</h2>
-{% if patients %}
-<table class="table">
-	<thead>
-		<tr>
-			<th>Patient ID</th>
-			<th>Patient Name</th>
-			<th>Actions</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for patient in patients %}
-		<tr>
-			<td>{{ patient.id }}</td>
-			<td>{{ patient.name }}</td>
-			<td>
-				<a
-					href="{{ url_for('doctor.issue_prescription', patient_id=patient.id) }}"
-					class="btn btn-sm btn-primary"
-					>Add Prescription</a
-				>
-				<a
-					href="{{ url_for('doctor.add_medical_record', patient_id=patient.id) }}"
-					class="btn btn-sm btn-secondary"
-					>Add Medical Record</a
-				>
-				<a
-					href="{{ url_for('doctor.schedule_appointment', patient_id=patient.id) }}"
-					class="btn btn-sm btn-success"
-					>Create Appointment</a
-				>
-				<a
-					href="{{ url_for('doctor.patient_profile', patient_id=patient.id) }}"
-					class="btn btn-sm btn-info"
-					>View Profile</a
-				>
-			</td>
-		</tr>
-		{% endfor %}
-	</tbody>
-</table>
-{% else %}
-<p>No patients found.</p>
-{% endif %} {% endblock %}
+		<div class="card shadow-sm mb-4">
+			<div class="card-header bg-primary text-white">
+				<h2 class="h5 mb-0">
+					<i class="fas fa-filter me-2"></i>Search Filters
+				</h2>
+			</div>
+			<div class="card-body">
+				<form method="POST">
+					{{ form.hidden_tag() }}
+					<div class="row g-3">
+						<div class="col-md-6">
+							{{ form.search_term.label(class="form-label") }} {{
+							form.search_term(class="form-control") }}
+						</div>
+						<div class="col-md-6">
+							{{ form.search_by.label(class="form-label") }} {{
+							form.search_by(class="form-control") }}
+						</div>
+						<div class="col-12">
+							{{ form.submit(class="btn btn-primary") }}
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<div class="card shadow-sm">
+			<div class="card-header bg-secondary text-white">
+				<h2 class="h5 mb-0">
+					<i class="fas fa-list me-2"></i>Search Results
+				</h2>
+			</div>
+			<div class="card-body">
+				{% if patients %}
+				<div class="table-responsive">
+					<table class="table">
+						<thead class="table-light">
+							<tr>
+								<th>Patient ID</th>
+								<th>Patient Name</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for patient in patients %}
+							<tr>
+								<td>{{ patient.id }}</td>
+								<td>{{ patient.name }}</td>
+								<td>
+									<div class="btn-group" role="group">
+										<a
+											href="{{ url_for('doctor.issue_prescription', patient_id=patient.id) }}"
+											class="btn btn-primary btn-sm"
+										>
+											<i
+												class="fas fa-prescription me-1"
+											></i
+											>Prescription
+										</a>
+										<a
+											href="{{ url_for('doctor.add_medical_record', patient_id=patient.id) }}"
+											class="btn btn-secondary btn-sm"
+										>
+											<i
+												class="fas fa-file-medical me-1"
+											></i
+											>Record
+										</a>
+										<a
+											href="{{ url_for('doctor.patient_profile', patient_id=patient.id) }}"
+											class="btn btn-info btn-sm"
+										>
+											<i class="fas fa-user me-1"></i
+											>Profile
+										</a>
+									</div>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				{% else %}
+				<div class="alert alert-info mb-0">
+					<i class="fas fa-info-circle me-2"></i>No patients found.
+				</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
