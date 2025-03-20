@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from datetime import datetime
 import os
-import logging
 from models import User, db  # Import the models and db
 
 from controllers.admin import bp as admin_bp
@@ -20,10 +19,6 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
-
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # User loader callback
 @login_manager.user_loader
@@ -106,9 +101,8 @@ def create_test_users():
             db.session.add(patient)
 
         db.session.commit()
-        logger.info("Test users created successfully.")
     except Exception as e:
-        logger.error(f"Error creating test users: {e}")
+        print(f"Error creating test users: {e}")
 
 if __name__ == '__main__':
     with app.app_context():
@@ -117,4 +111,4 @@ if __name__ == '__main__':
             create_test_users()
             app.run(debug=True)
         except Exception as e:
-            logger.error(f"Error during app initialization: {e}")
+            print(f"Error during app initialization: {e}")
