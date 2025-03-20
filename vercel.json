@@ -16,6 +16,13 @@
 	"env": {
 		"PYTHON_VERSION": "3.12",
 		"FLASK_APP": "wsgi.py",
-		"FLASK_ENV": "production"
+		"FLASK_ENV": "production",
+		"SQLALCHEMY_TRACK_MODIFICATIONS": "False",
+		"SQLALCHEMY_ECHO": "True"
+	},
+	"git": {
+		"deploymentEnabled": {
+			"main": true
+		}
 	}
 }

@@ -1,10 +1,11 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from datetime import datetime
 import os
 import logging
 from models import User, db  # Import the models and db
+from sqlalchemy import exc
 
 from controllers.admin import bp as admin_bp
 from controllers.patient import bp as patient_bp
@@ -17,14 +18,6 @@ app.config.from_object('config.Config')  # Load configuration from config.py
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Initialize the database with the app
-try:
-    db.init_app(app)
-    logger.info("Database initialized successfully")
-except Exception as e:
-    logger.error(f"Database initialization error: {e}")
-    raise
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -48,6 +41,20 @@ def index():
         if current_user.role == 'patient':
             return redirect(url_for('patient.profile'))
     return render_template('index.html')
+
+# Error handlers
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    app.logger.error(f'Server Error: {error}')
+    return jsonify(error=str(error)), 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    app.logger.error(f'Unhandled Exception: {str(e)}')
+    if isinstance(e, exc.SQLAlchemyError):
+        db.session.rollback()
+    return jsonify(error=str(e)), 500
 
 def create_test_users():
     try:
@@ -115,13 +122,20 @@ def create_test_users():
     except Exception as e:
         logger.error(f"Error creating test users: {e}")
 
-if __name__ == '__main__':
+# Update database initialization
+def init_db(app):
     with app.app_context():
         try:
-            db.create_all()  # Create the database schema
+            db.init_app(app)
+            db.create_all()
             create_test_users()
-            logger.info("Database schema created successfully")
-            app.run(debug=True)
+            logger.info("Database initialized successfully")
         except Exception as e:
-            logger.error(f"Error during app initialization: {e}")
+            logger.error(f"Database initialization error: {e}")
             raise
+
+# Initialize everything
+init_db(app)
+
+if __name__ == '__main__':
+    app.run(debug=True)
