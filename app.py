@@ -39,7 +39,7 @@ def index():
             return redirect(url_for('patient.profile'))
     return redirect(url_for('auth.login'))
 
-def create_test_users():
+def create_admin_account():
     try:
         if not User.query.filter_by(email='admin@example.com').first():
             admin = User(
@@ -50,52 +50,6 @@ def create_test_users():
             admin.set_password('passwordpassword')
             db.session.add(admin)
 
-        if not User.query.filter_by(email='milica@gmail.com').first():
-            doctor = User(
-                email='milica@gmail.com',
-                name='Milica Petrovic',
-                role='doctor',
-                specialization='General Practitioner'
-            )
-            doctor.set_password("be35v+'h=KjnSn")
-            db.session.add(doctor)
-
-        if not User.query.filter_by(email='danijela@gmail.com').first():
-            patient = User(
-                email='danijela@gmail.com',
-                name='Danijela Mikic',
-                role='patient'
-            )
-            patient.set_password('X#Kfv8$}Vj$#]]:')
-            db.session.add(patient)
-
-        if not User.query.filter_by(email='jovan@gmail.com').first():
-            patient = User(
-                email='jovan@gmail.com',
-                name='Jovan Jovanovic',
-                role='patient'
-            )
-            patient.set_password('password123')
-            db.session.add(patient)
-
-        if not User.query.filter_by(email='ana@gmail.com').first():
-            patient = User(
-                email='ana@gmail.com',
-                name='Ana Andric',
-                role='patient'
-            )
-            patient.set_password('password123')
-            db.session.add(patient)
-
-        if not User.query.filter_by(email='marko@gmail.com').first():
-            patient = User(
-                email='marko@gmail.com',
-                name='Marko',
-                role='patient'
-            )
-            patient.set_password('password123')
-            db.session.add(patient)
-
         db.session.commit()
     except Exception as e:
         print(f"Error creating test users: {e}")
@@ -104,7 +58,7 @@ if __name__ == '__main__':
     with app.app_context():
         try:
             db.create_all()
-            create_test_users()
+            create_admin_account()
             app.run(debug=True)
         except Exception as e:
             print(f"Error during app initialization: {e}")
